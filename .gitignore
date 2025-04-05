@@ -82,8 +82,8 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/rider
 
-/API/obj/*
+/*/obj/*
 /.idea/*
-/API/appsettings.Development.json
-/API/appsettings.json
-/API/bin/*
+/*/appsettings.Development.json
+/*/appsettings.json
+/*/bin/*
