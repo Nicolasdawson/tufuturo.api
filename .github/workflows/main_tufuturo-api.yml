@@ -36,7 +36,7 @@ jobs:
       
       - name: Run Newman tests
         id: newman-tests
-        run: newman run ./IntegrationTests/TuFuturo.postman_collection.json -e /IntegrationTests/tufuturo-api-dev.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export ./newman-results/report.html
+        run: newman run ./IntegrationTests/TuFuturo.postman_collection.json -e ./IntegrationTests/tufuturo-api-dev.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export ./newman-results/report.html
       
       - name: Upload test report
         if: always()
