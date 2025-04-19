@@ -6,20 +6,25 @@ namespace API.Implementations.Repository.Entities;
 public class Email
 {
     [Key]
+    [Column("id")]
     public int Id { get; set; }
     
     [Required]
     [MaxLength(255)]
+    [Column("type")]
     public string Type { get; set; } = string.Empty;
     
+    [Required]
+    [Column("deliveryDate")]
+    public DateOnly DeliveryDate { get; set; }
+    
+    [Required]
+    [Column("isDelivered")]
+    public bool IsDelivered { get; set; }
+    
+    [Column("studentId")]
     public int StudentId { get; set; }
     
     [ForeignKey("StudentId")]
     public Student? Student { get; set; }
-    
-    [Required]
-    public DateOnly DeliveryDate { get; set; }
-    
-    [Required]
-    public bool IsDelivered { get; set; }
 }

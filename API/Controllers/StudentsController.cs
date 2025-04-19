@@ -1,11 +1,15 @@
 ﻿using API.Abstractions;
+using API.Implementations.Repository.Entities;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
+using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[TranslateResultToActionResult]
 public class StudentsController : ControllerBase
 {
     private readonly IStudentDomain _studentDomain;
@@ -16,18 +20,8 @@ public class StudentsController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> PostStudent([FromBody] StudentRequest request)
+    public async Task<Result<Student>> CreateStudent([FromBody] StudentRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var result = await _studentDomain.CreateStudent(request);
-
-        if (result is not null)
-        {
-            return Ok(result);
-        }
-        
-        return BadRequest();
+        return await _studentDomain.CreateStudent(request);
     }
 }

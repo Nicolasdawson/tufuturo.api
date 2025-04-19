@@ -7,17 +7,17 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class QuestionsController : ControllerBase
 {
-    private readonly IAssessmentService _assessmentService;
+    private readonly IQuestionsDomain _questionsDomain;
 
-    public QuestionsController(IAssessmentService assessmentService)
+    public QuestionsController(IQuestionsDomain questionsDomain)
     {
-        _assessmentService = assessmentService;
+        _questionsDomain = questionsDomain;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetQuestions()
     {
-        var questions = await _assessmentService.GetQuestions();
+        var questions = await _questionsDomain.GetAllQuestions();
         return Ok(questions);
     }
 }

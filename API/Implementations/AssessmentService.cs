@@ -9,86 +9,96 @@ public class AssessmentService : IAssessmentService
     {
         return new List<Question>
         {
-            // Realistic questions
             new Question
-                { Id = 1, Text = "I enjoy working with tools and machines", Category = RiasecCategory.Realistic },
-            new Question { Id = 2, Text = "I like to build things with my hands", Category = RiasecCategory.Realistic },
+                { Id = 1, Text = "Disfruto trabajar con herramientas y máquinas", Category = RiasecCategory.Realistic },
             new Question
-            {
-                Id = 3, Text = "I prefer activities that involve physical effort", Category = RiasecCategory.Realistic
-            },
-            new Question { Id = 4, Text = "I enjoy repairing mechanical devices", Category = RiasecCategory.Realistic },
-            new Question { Id = 5, Text = "I am good at using tools", Category = RiasecCategory.Realistic },
-
-            // Investigative questions
-            new Question { Id = 6, Text = "I enjoy solving complex problems", Category = RiasecCategory.Investigative },
-            new Question
-                { Id = 7, Text = "I like to analyze data and information", Category = RiasecCategory.Investigative },
+                { Id = 2, Text = "Me gusta construir cosas con mis manos", Category = RiasecCategory.Realistic },
             new Question
             {
-                Id = 8, Text = "I enjoy science and scientific experiments", Category = RiasecCategory.Investigative
+                Id = 3, Text = "Prefiero actividades que impliquen esfuerzo físico", Category = RiasecCategory.Realistic
             },
             new Question
-                { Id = 9, Text = "I am curious about how things work", Category = RiasecCategory.Investigative },
+                { Id = 4, Text = "Disfruto reparar dispositivos mecánicos", Category = RiasecCategory.Realistic },
+            new Question { Id = 5, Text = "Soy bueno usando herramientas", Category = RiasecCategory.Realistic },
             new Question
-                { Id = 10, Text = "I enjoy challenging intellectual puzzles", Category = RiasecCategory.Investigative },
-
-            // Artistic questions
-            new Question { Id = 11, Text = "I enjoy expressing myself creatively", Category = RiasecCategory.Artistic },
+                { Id = 6, Text = "Disfruto resolver problemas complejos", Category = RiasecCategory.Investigative },
             new Question
-            {
-                Id = 12, Text = "I like activities that allow for self-expression", Category = RiasecCategory.Artistic
-            },
-            new Question
-                { Id = 13, Text = "I enjoy art, music, or creative writing", Category = RiasecCategory.Artistic },
+                { Id = 7, Text = "Me gusta analizar datos e información", Category = RiasecCategory.Investigative },
             new Question
             {
-                Id = 14, Text = "I prefer tasks without rigid rules or structures", Category = RiasecCategory.Artistic
-            },
-            new Question { Id = 15, Text = "I am good at thinking of new ideas", Category = RiasecCategory.Artistic },
-
-            // Social questions
-            new Question
-                { Id = 16, Text = "I enjoy helping others with their problems", Category = RiasecCategory.Social },
-            new Question { Id = 17, Text = "I like teaching or training others", Category = RiasecCategory.Social },
-            new Question
-                { Id = 18, Text = "I am good at understanding people's feelings", Category = RiasecCategory.Social },
-            new Question { Id = 19, Text = "I enjoy working as part of a team", Category = RiasecCategory.Social },
-            new Question
-                { Id = 20, Text = "I am interested in social issues and causes", Category = RiasecCategory.Social },
-
-            // Enterprising questions
-            new Question
-            {
-                Id = 21, Text = "I enjoy persuading others to do things my way", Category = RiasecCategory.Enterprising
-            },
-            new Question { Id = 22, Text = "I like to lead and direct others", Category = RiasecCategory.Enterprising },
-            new Question
-            {
-                Id = 23, Text = "I enjoy starting and carrying out projects", Category = RiasecCategory.Enterprising
+                Id = 8, Text = "Disfruto la ciencia y los experimentos científicos",
+                Category = RiasecCategory.Investigative
             },
             new Question
             {
-                Id = 24, Text = "I am good at selling things or promoting ideas", Category = RiasecCategory.Enterprising
-            },
-            new Question
-                { Id = 25, Text = "I like taking risks to achieve goals", Category = RiasecCategory.Enterprising },
-
-            // Conventional questions
-            new Question
-                { Id = 26, Text = "I enjoy working with numbers and data", Category = RiasecCategory.Conventional },
-            new Question
-            {
-                Id = 27, Text = "I like following clear procedures and rules", Category = RiasecCategory.Conventional
+                Id = 9, Text = "Siento curiosidad por cómo funcionan las cosas", Category = RiasecCategory.Investigative
             },
             new Question
             {
-                Id = 28, Text = "I am good at organizing and keeping records", Category = RiasecCategory.Conventional
+                Id = 10, Text = "Disfruto los acertijos intelectuales desafiantes",
+                Category = RiasecCategory.Investigative
             },
-            new Question { Id = 29, Text = "I pay attention to details", Category = RiasecCategory.Conventional },
+            new Question
+                { Id = 11, Text = "Disfruto expresarme de forma creativa", Category = RiasecCategory.Artistic },
             new Question
             {
-                Id = 30, Text = "I prefer structured tasks with clear instructions",
+                Id = 12, Text = "Me gustan las actividades que permiten la autoexpresión",
+                Category = RiasecCategory.Artistic
+            },
+            new Question
+            {
+                Id = 13, Text = "Disfruto el arte, la música o la escritura creativa",
+                Category = RiasecCategory.Artistic
+            },
+            new Question
+            {
+                Id = 14, Text = "Prefiero tareas sin reglas ni estructuras rígidas", Category = RiasecCategory.Artistic
+            },
+            new Question { Id = 15, Text = "Soy bueno pensando en nuevas ideas", Category = RiasecCategory.Artistic },
+            new Question
+                { Id = 16, Text = "Disfruto ayudar a otros con sus problemas", Category = RiasecCategory.Social },
+            new Question { Id = 17, Text = "Me gusta enseñar o capacitar a otros", Category = RiasecCategory.Social },
+            new Question
+            {
+                Id = 18, Text = "Soy bueno entendiendo los sentimientos de las personas",
+                Category = RiasecCategory.Social
+            },
+            new Question { Id = 19, Text = "Disfruto trabajar en equipo", Category = RiasecCategory.Social },
+            new Question
+                { Id = 20, Text = "Me interesan los temas y causas sociales", Category = RiasecCategory.Social },
+            new Question
+            {
+                Id = 21, Text = "Disfruto persuadir a otros para que hagan las cosas a mi manera",
+                Category = RiasecCategory.Enterprising
+            },
+            new Question
+                { Id = 22, Text = "Me gusta liderar y dirigir a otros", Category = RiasecCategory.Enterprising },
+            new Question
+            {
+                Id = 23, Text = "Disfruto iniciar y llevar a cabo proyectos", Category = RiasecCategory.Enterprising
+            },
+            new Question
+            {
+                Id = 24, Text = "Soy bueno vendiendo cosas o promoviendo ideas", Category = RiasecCategory.Enterprising
+            },
+            new Question
+            {
+                Id = 25, Text = "Me gusta asumir riesgos para lograr objetivos", Category = RiasecCategory.Enterprising
+            },
+            new Question
+                { Id = 26, Text = "Disfruto trabajar con números y datos", Category = RiasecCategory.Conventional },
+            new Question
+            {
+                Id = 27, Text = "Me gusta seguir procedimientos y reglas claras", Category = RiasecCategory.Conventional
+            },
+            new Question
+            {
+                Id = 28, Text = "Soy bueno organizando y manteniendo registros", Category = RiasecCategory.Conventional
+            },
+            new Question { Id = 29, Text = "Presto atención a los detalles", Category = RiasecCategory.Conventional },
+            new Question
+            {
+                Id = 30, Text = "Prefiero tareas estructuradas con instrucciones claras",
                 Category = RiasecCategory.Conventional
             }
         };
@@ -97,7 +107,7 @@ public class AssessmentService : IAssessmentService
     public async Task<AssessmentResult> CalculateResult(Guid userId, List<Answer> answers)
     {
         var questions = await GetQuestions();
-        
+
         var scores = new Dictionary<RiasecCategory, int>();
         foreach (var category in Enum.GetValues<RiasecCategory>())
         {
@@ -119,7 +129,7 @@ public class AssessmentService : IAssessmentService
             CompletedAt = DateTime.UtcNow,
             Scores = scores
         };
-        
+
         return result;
     }
 

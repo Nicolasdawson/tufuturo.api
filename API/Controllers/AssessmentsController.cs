@@ -6,21 +6,18 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AssessmentController : ControllerBase
+public class AssessmentsController : ControllerBase
 {
     private readonly IAssessmentService _assessmentService;
 
-    public AssessmentController(IAssessmentService assessmentService)
+    public AssessmentsController(IAssessmentService assessmentService)
     {
         _assessmentService = assessmentService;
     }
 
-    [HttpPost()]
+    [HttpPost]
     public async Task<IActionResult> SubmitAssessment([FromBody] SubmitAssessmentRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var result = await _assessmentService.CalculateResult(
             request.UserId,
             request.Answers.Select(a => new Answer

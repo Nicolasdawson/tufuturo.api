@@ -72,3 +72,37 @@ CREATE TABLE Email (
     DeliveryDate Date NOT NULL,
     IsDelivered boolean NOT NULL
 );
+
+
+INSERT INTO public."question" ( "text", "category", "createdAt", "isDeleted")
+VALUES
+    ('Disfruto trabajar con herramientas y máquinas', 'Realistic', CURRENT_TIMESTAMP, FALSE),
+    ('Me gusta construir cosas con mis manos', 'Realistic', CURRENT_TIMESTAMP, FALSE),
+    ('Prefiero actividades que impliquen esfuerzo físico', 'Realistic', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto reparar dispositivos mecánicos', 'Realistic', CURRENT_TIMESTAMP, FALSE),
+    ('Soy bueno usando herramientas', 'Realistic', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto resolver problemas complejos', 'Investigative', CURRENT_TIMESTAMP, FALSE),
+    ('Me gusta analizar datos e información', 'Investigative', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto la ciencia y los experimentos científicos', 'Investigative', CURRENT_TIMESTAMP, FALSE),
+    ('Siento curiosidad por cómo funcionan las cosas', 'Investigative', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto los acertijos intelectuales desafiantes', 'Investigative', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto expresarme de forma creativa', 'Artistic', CURRENT_TIMESTAMP, FALSE),
+    ('Me gustan las actividades que permiten la autoexpresión', 'Artistic', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto el arte, la música o la escritura creativa', 'Artistic', CURRENT_TIMESTAMP, FALSE),
+    ('Prefiero tareas sin reglas ni estructuras rígidas', 'Artistic', CURRENT_TIMESTAMP, FALSE),
+    ('Soy bueno pensando en nuevas ideas', 'Artistic', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto ayudar a otros con sus problemas', 'Social', CURRENT_TIMESTAMP, FALSE),
+    ('Me gusta enseñar o capacitar a otros', 'Social', CURRENT_TIMESTAMP, FALSE),
+    ('Soy bueno entendiendo los sentimientos de las personas', 'Social', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto trabajar en equipo', 'Social', CURRENT_TIMESTAMP, FALSE),
+    ('Me interesan los temas y causas sociales', 'Social', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto persuadir a otros para que hagan las cosas a mi manera', 'Enterprising', CURRENT_TIMESTAMP, FALSE),
+    ('Me gusta liderar y dirigir a otros', 'Enterprising', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto iniciar y llevar a cabo proyectos', 'Enterprising', CURRENT_TIMESTAMP, FALSE),
+    ('Soy bueno vendiendo cosas o promoviendo ideas', 'Enterprising', CURRENT_TIMESTAMP, FALSE),
+    ('Me gusta asumir riesgos para lograr objetivos', 'Enterprising', CURRENT_TIMESTAMP, FALSE),
+    ('Disfruto trabajar con números y datos', 'Conventional', CURRENT_TIMESTAMP, FALSE),
+    ('Me gusta seguir procedimientos y reglas claras', 'Conventional', CURRENT_TIMESTAMP, FALSE),
+    ('Soy bueno organizando y manteniendo registros', 'Conventional', CURRENT_TIMESTAMP, FALSE),
+    ('Presto atención a los detalles', 'Conventional', CURRENT_TIMESTAMP, FALSE),
+    ('Prefiero tareas estructuradas con instrucciones claras', 'Conventional', CURRENT_TIMESTAMP, FALSE);

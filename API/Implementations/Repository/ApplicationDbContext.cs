@@ -17,20 +17,22 @@ public class ApplicationDbContext : DbContext
     public DbSet<Student> Students { get; set; }
     public DbSet<WeightingStudent> WeightingStudents { get; set; }
     public DbSet<Email> Emails { get; set; }
+    public DbSet<Question> Questions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Region>().ToTable("Region");
-        modelBuilder.Entity<Schedule>().ToTable("Schedule");
-        modelBuilder.Entity<KnowledgeArea>().ToTable("KnowledgeArea");
-        modelBuilder.Entity<Institution>().ToTable("Institution");
-        modelBuilder.Entity<Career>().ToTable("Career");
-        modelBuilder.Entity<EmploymentIncome>().ToTable("EmploymentIncome");
-        modelBuilder.Entity<Statistics>().ToTable("Statistics");
-        modelBuilder.Entity<WeightingCareer>().ToTable("WeightingCareer");
+        modelBuilder.Entity<Region>().ToTable("region");
+        modelBuilder.Entity<Schedule>().ToTable("schedule");
+        modelBuilder.Entity<KnowledgeArea>().ToTable("knowledgeArea");
+        modelBuilder.Entity<Institution>().ToTable("institution");
+        modelBuilder.Entity<Career>().ToTable("career");
+        modelBuilder.Entity<EmploymentIncome>().ToTable("employmentIncome");
+        modelBuilder.Entity<Statistics>().ToTable("statistics");
+        modelBuilder.Entity<WeightingCareer>().ToTable("weightingCareer");
         modelBuilder.Entity<Student>().ToTable("student");
-        modelBuilder.Entity<WeightingStudent>().ToTable("WeightingStudent");
-        modelBuilder.Entity<Email>().ToTable("Email");
+        modelBuilder.Entity<WeightingStudent>().ToTable("weightingStudent");
+        modelBuilder.Entity<Email>().ToTable("email");
+        modelBuilder.Entity<Question>().ToTable("question");
         
         modelBuilder.Entity<Institution>()
             .HasOne(i => i.Region)

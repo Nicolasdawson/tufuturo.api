@@ -1,6 +1,7 @@
 ﻿using API.Abstractions;
 using API.Implementations.Repository.Entities;
 using API.Models;
+using Ardalis.Result;
 
 namespace API.Implementations;
 
@@ -13,20 +14,18 @@ public class StudentDomain : IStudentDomain
         _studentRepository = studentRepository;
     }
 
-    public async Task<Student?> CreateStudent(StudentRequest request)
+    public async Task<Result<Student>> CreateStudent(StudentRequest request)
     {
-        try
+        var emailAlreadyExists = await _studentRepository.CheckEmail(request.Email);
+
+        if (emailAlreadyExists)
+            return Result<Student>.Conflict("Email already exists");
+        
+        return Result<Student>.Created(await _studentRepository.AddAsync(new Student
         {
-            return await _studentRepository.AddAsync(new Student
-            {
-                Name = request.Name,
-                Email = request.Email,
-                Answers = request.Answers
-            });
-        }
-        catch (Exception exception)
-        {
-            return null;
-        }
+            Name = request.Name,
+            Email = request.Email,
+            Answers = request.Answers
+        }));
     }
 }
