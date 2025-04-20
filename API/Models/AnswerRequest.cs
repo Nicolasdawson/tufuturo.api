@@ -5,7 +5,6 @@ namespace API.Models;
 public class AnswerRequest
 {
     [Required]
-    [Range(1, 30)]
     public int QuestionId { get; set; }
 
     [Required]

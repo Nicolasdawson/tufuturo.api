@@ -24,8 +24,9 @@ public class StudentDomain : IStudentDomain
         return Result<Student>.Created(await _studentRepository.AddAsync(new Student
         {
             Name = request.Name,
-            Email = request.Email,
-            Answers = request.Answers
+            Email = request.Email
         }));
     }
+    
+    // TODO: endpoint para cuando elijen una carrera
 }

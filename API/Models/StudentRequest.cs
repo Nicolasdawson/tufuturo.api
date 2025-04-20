@@ -10,7 +10,4 @@ public class StudentRequest
     [Required]
     [EmailAddress]
     public string Email { get; set; } = null!;
-
-    [Required] 
-    public string Answers { get; set; } = null!;
 }

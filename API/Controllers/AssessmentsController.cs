@@ -1,37 +1,26 @@
 ﻿using API.Abstractions;
 using API.Models;
+using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[TranslateResultToActionResult]
 public class AssessmentsController : ControllerBase
 {
-    private readonly IAssessmentService _assessmentService;
+    private readonly IAssessmentDomain _assessmentDomain;
 
-    public AssessmentsController(IAssessmentService assessmentService)
+    public AssessmentsController(IAssessmentDomain assessmentDomain)
     {
-        _assessmentService = assessmentService;
+        _assessmentDomain = assessmentDomain;
     }
 
     [HttpPost]
-    public async Task<IActionResult> SubmitAssessment([FromBody] SubmitAssessmentRequest request)
+    public async Task<Result> SubmitAssessment([FromBody] AssessmentRequest request)
     {
-        var result = await _assessmentService.CalculateResult(
-            request.UserId,
-            request.Answers.Select(a => new Answer
-            {
-                QuestionId = a.QuestionId,
-                Score = a.Score
-            }).ToList());
-
-        var careers = await _assessmentService.GetCareerSuggestions(result);
-
-        return Ok(new AssessmentResponse
-        {
-            Result = result,
-            CareerSuggestions = careers
-        });
+        return await _assessmentDomain.CreateAssessment(request);
     }
 }

@@ -18,9 +18,4 @@ public class Student
     [MaxLength(255)]
     [Column("email")]
     public string Email { get; set; } = string.Empty;
-    
-    [Required]
-    [MaxLength(500)]
-    [Column("answers")]
-    public string Answers { get; set; } = string.Empty;
 }

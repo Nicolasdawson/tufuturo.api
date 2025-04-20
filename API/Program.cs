@@ -18,7 +18,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IAssessmentService, AssessmentService>();
+builder.Services.AddScoped<IAssessmentDomain, AssessmentDomain>();
 builder.Services.AddScoped<IStudentDomain, StudentDomain>();
 builder.Services.AddScoped<IQuestionsDomain, QuestionsDomain>();
 
