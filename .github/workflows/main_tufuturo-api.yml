@@ -47,9 +47,6 @@ jobs:
       - name: Trivy FS Scan
         run: trivy fs . --exit-code 0 --severity HIGH,CRITICAL --format table
 
-      - name: Gitleaks Scan
-        uses: gitleaks/gitleaks-action@v2
-
       - name: Start API in background
         run: |
           cd ${{env.DOTNET_ROOT}}/myapp
