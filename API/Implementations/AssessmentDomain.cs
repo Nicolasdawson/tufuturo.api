@@ -25,7 +25,7 @@ public class AssessmentDomain : IAssessmentDomain
 
         var questions = await _questionRepository.GetAllQuestions();
         
-        var scoreRiasec = GetRiasecScores(request.AnswersRiasec, questions);
+        //var scoreRiasec = GetRiasecScores(request.AnswersRiasec, questions);
         
         // filtrar por region opcional
         
@@ -45,7 +45,7 @@ public class AssessmentDomain : IAssessmentDomain
         
         // mandar mensaje a la cola para mandar el correo
         
-        // ordenar las carrearas por mayor sueldo e empleabilidad (ns cuantas devolver)
+        // ordenar las carreras por mayor sueldo e empleabilidad (ns cuantas devolver)
         
         
         return Result.Success();
