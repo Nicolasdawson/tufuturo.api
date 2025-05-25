@@ -33,7 +33,21 @@ jobs:
           cd ${{env.DOTNET_ROOT}}/myapp
           dotnet API.dll &
           sleep 10
+          
+      - name: Install Newman
+        run: npm install -g newman newman-reporter-htmlextra
 
+      - name: Run Newman tests
+        id: newman-tests
+        run: newman run ./IntegrationTests/TuFuturo.postman_collection.json -e ./IntegrationTests/tufuturo-api-dev.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export ./newman-results/report.html
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-test-report
+          path: ./newman-results
+          
       - name: Upload application artifact
         if: success()
         uses: actions/upload-artifact@v4
