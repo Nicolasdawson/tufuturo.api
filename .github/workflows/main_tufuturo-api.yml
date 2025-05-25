@@ -1,13 +1,11 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 name: Build, Test and deploy ASP.Net Core app to Azure Web App - tufuturo-api
-
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -16,18 +14,46 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
+          
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
-
+          
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+          
+      - name: Cache SonarCloud scanner
+        id: cache-sonar-scanner
+        uses: actions/cache@v3
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+          
+      - name: Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet-sonarscanner begin /k:"Nicolasdawson_tufuturo.api" /o:"nicolasdawson" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet build --configuration Release
+          dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+          
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
+        
       - name: Start API in background
         run: |
           cd ${{env.DOTNET_ROOT}}/myapp
@@ -36,25 +62,17 @@ jobs:
           
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
-
+        
       - name: Run Newman tests
         id: newman-tests
         run: newman run ./IntegrationTests/TuFuturo.postman_collection.json -e ./IntegrationTests/tufuturo-api-dev.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export ./newman-results/report.html
-
+        
       - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: newman-test-report
           path: ./newman-results
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          organization: nicolasdawson
-          projectKey: Nicolasdawson_tufuturo.api
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           
       - name: Upload application artifact
         if: success()
@@ -62,7 +80,7 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
-
+          
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-test
@@ -77,14 +95,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-
+          
       - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F46438F23D1747D6B5B1F3FDF9C0E238 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_304621A317A84DCAA6F87AB7681D019B }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8B3ECCD61C284F878E8850F1377C9A4C }}
-
+          
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
