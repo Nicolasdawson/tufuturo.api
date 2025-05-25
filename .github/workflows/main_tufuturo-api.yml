@@ -47,6 +47,14 @@ jobs:
         with:
           name: newman-test-report
           path: ./newman-results
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          organization: nicolasdawson
+          projectKey: Nicolasdawson_tufuturo.api
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           
       - name: Upload application artifact
         if: success()
