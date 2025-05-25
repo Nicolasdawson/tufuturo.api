@@ -1,50 +1,75 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 name: Build, Test and deploy ASP.Net Core app to Azure Web App - tufuturo-api
+
 on:
   push:
     branches:
       - main
   workflow_dispatch:
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: csharp
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x'
-          
+
       - name: Build with dotnet
         run: dotnet build --configuration Release
-        
+
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-      
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get install wget apt-transport-https gnupg lsb-release -y
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install trivy -y
+
+      - name: Trivy FS Scan
+        run: trivy fs . --exit-code 0 --severity HIGH,CRITICAL --format table
+
+      - name: Gitleaks Scan
+        uses: gitleaks/gitleaks-action@v2
+
       - name: Start API in background
         run: |
           cd ${{env.DOTNET_ROOT}}/myapp
           dotnet API.dll &
           sleep 10
-      
+
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
-      
+
       - name: Run Newman tests
         id: newman-tests
         run: newman run ./IntegrationTests/TuFuturo.postman_collection.json -e ./IntegrationTests/tufuturo-api-dev.postman_environment.json -r cli,htmlextra --reporter-htmlextra-export ./newman-results/report.html
-      
+
       - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: newman-test-report
           path: ./newman-results
-      
+
       - name: Upload application artifact
         if: success()
         uses: actions/upload-artifact@v4
@@ -66,14 +91,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F46438F23D1747D6B5B1F3FDF9C0E238 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_304621A317A84DCAA6F87AB7681D019B }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8B3ECCD61C284F878E8850F1377C9A4C }}
-          
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
