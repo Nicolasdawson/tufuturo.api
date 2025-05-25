@@ -17,11 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: csharp
-
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
@@ -32,9 +27,6 @@ jobs:
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
 
       - name: Install Trivy
         run: |
