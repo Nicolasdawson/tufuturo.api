@@ -31,9 +31,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{url_dev}}/Questions",
+					"raw": "{{url}}/Questions",
 					"host": [
-						"{{url_dev}}"
+						"{{url}}"
 					],
 					"path": [
 						"Questions"
@@ -92,9 +92,9 @@
 					}
 				},
 				"url": {
-					"raw": "{{url_dev}}/Students",
+					"raw": "{{url}}/Students",
 					"host": [
-						"{{url_dev}}"
+						"{{url}}"
 					],
 					"path": [
 						"Students"
@@ -133,9 +133,9 @@
 					}
 				},
 				"url": {
-					"raw": "{{url_dev}}/Assessments",
+					"raw": "{{url}}/Assessments",
 					"host": [
-						"{{url_dev}}"
+						"{{url}}"
 					],
 					"path": [
 						"Assessments"
