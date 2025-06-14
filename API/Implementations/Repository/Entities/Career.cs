@@ -2,32 +2,17 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace API.Implementations.Repository.Entities;
-public class Career
+public class Career : GenericEntity
 {
-    [Key]
-    [Column("id")]
-    public int Id { get; set; }
-    
-    [Required]
     [MaxLength(255)]
     [Column("name")]
-    public string Name { get; set; } = string.Empty;
-    
-    [Column("institutionId")]
-    public int InstitutionId { get; set; }
+    public required string Name { get; set; }
     
     [Column("knowledgeAreaId")]
     public int KnowledgeAreaId { get; set; }
     
-    [Column("scheduleId")]
-    public int ScheduleId { get; set; }
-    
-    [ForeignKey("InstitutionId")]
-    public Institution? Institution { get; set; }
-    
     [ForeignKey("KnowledgeAreaId")]
-    public KnowledgeArea? KnowledgeArea { get; set; }
+    public KnowledgeArea KnowledgeArea { get; set; }
     
-    [ForeignKey("ScheduleId")]
-    public Schedule? Schedule { get; set; }
+    public virtual ICollection<CareerInstitution> CareerInstitutions { get; set; } = new List<CareerInstitution>();
 }

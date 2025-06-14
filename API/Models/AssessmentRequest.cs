@@ -4,9 +4,6 @@ namespace API.Models;
 
 public class AssessmentRequest
 {
-    
-    // TODO: esto deberia venir en el token
-    
     [Required]
     public int StudentId { get; set; }
     

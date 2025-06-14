@@ -11,13 +11,17 @@ public class ApplicationDbContext : DbContext
     public DbSet<KnowledgeArea> KnowledgeAreas { get; set; }
     public DbSet<Institution> Institutions { get; set; }
     public DbSet<Career> Careers { get; set; }
-    public DbSet<EmploymentIncome> EmploymentIncomes { get; set; }
-    public DbSet<Statistics> Statistics { get; set; }
-    public DbSet<WeightingCareer> WeightingCareers { get; set; }
     public DbSet<Student> Students { get; set; }
-    public DbSet<WeightingStudent> WeightingStudents { get; set; }
     public DbSet<Email> Emails { get; set; }
     public DbSet<Question> Questions { get; set; }
+    public DbSet<AcreditationType> AcreditationTypes { get; set; }
+    public DbSet<InstitutionType> InstitutionTypes { get; set; }
+    public DbSet<CareerCampus> CareerCampuses { get; set; }
+    public DbSet<CareerCampusStats> CareerCampusStats { get; set; }
+    public DbSet<CareerInstitution> CareerInstitutions { get; set; }
+    public DbSet<CareerInstitutionStats> CareerInstitutionStats { get; set; }
+    public DbSet<InstitutionCampus> InstitutionCampuses { get; set; }
+    public DbSet<InstitutionDetails> InstitutionDetails { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,57 +30,86 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<KnowledgeArea>().ToTable("knowledgeArea");
         modelBuilder.Entity<Institution>().ToTable("institution");
         modelBuilder.Entity<Career>().ToTable("career");
-        modelBuilder.Entity<EmploymentIncome>().ToTable("employmentIncome");
-        modelBuilder.Entity<Statistics>().ToTable("statistics");
-        modelBuilder.Entity<WeightingCareer>().ToTable("weightingCareer");
         modelBuilder.Entity<Student>().ToTable("student");
-        modelBuilder.Entity<WeightingStudent>().ToTable("weightingStudent");
         modelBuilder.Entity<Email>().ToTable("email");
         modelBuilder.Entity<Question>().ToTable("question");
-        
-        modelBuilder.Entity<Institution>()
-            .HasOne(i => i.Region)
-            .WithMany()
-            .HasForeignKey(i => i.RegionId);
-
-        modelBuilder.Entity<Career>()
-            .HasOne(c => c.Institution)
-            .WithMany()
-            .HasForeignKey(c => c.InstitutionId);
+        modelBuilder.Entity<InstitutionType>().ToTable("institutionType");
+        modelBuilder.Entity<AcreditationType>().ToTable("acreditationType");
+        modelBuilder.Entity<CareerCampus>().ToTable("careerCampus");
+        modelBuilder.Entity<CareerCampusStats>().ToTable("careerCampusStats");
+        modelBuilder.Entity<CareerInstitution>().ToTable("careerInstitution");
+        modelBuilder.Entity<CareerInstitutionStats>().ToTable("careerInstitutionStats");
+        modelBuilder.Entity<InstitutionCampus>().ToTable("institutionCampus");
+        modelBuilder.Entity<InstitutionDetails>().ToTable("institutionDetails");
 
         modelBuilder.Entity<Career>()
             .HasOne(c => c.KnowledgeArea)
             .WithMany()
             .HasForeignKey(c => c.KnowledgeAreaId);
 
-        modelBuilder.Entity<Career>()
-            .HasOne(c => c.Schedule)
-            .WithMany()
-            .HasForeignKey(c => c.ScheduleId);
-
-        modelBuilder.Entity<EmploymentIncome>()
-            .HasOne(e => e.Career)
-            .WithMany()
-            .HasForeignKey(e => e.CareerId);
-
-        modelBuilder.Entity<Statistics>()
-            .HasOne(s => s.Career)
-            .WithMany()
-            .HasForeignKey(s => s.CareerId);
-
-        modelBuilder.Entity<WeightingCareer>()
-            .HasOne(w => w.Career)
-            .WithMany()
-            .HasForeignKey(w => w.CareerId);
-
-        modelBuilder.Entity<WeightingStudent>()
-            .HasOne(w => w.Student)
-            .WithMany()
-            .HasForeignKey(w => w.StudentId);
-
         modelBuilder.Entity<Email>()
             .HasOne(e => e.Student)
             .WithMany()
             .HasForeignKey(e => e.StudentId);
+        
+        modelBuilder.Entity<CareerCampus>()
+            .HasOne(e => e.CareerInstitution)
+            .WithMany(x => x.CareerCampuses)
+            .HasForeignKey(e => e.CareerInstitutionId);
+        
+        modelBuilder.Entity<CareerCampus>()
+            .HasOne(e => e.Schedule)
+            .WithMany()
+            .HasForeignKey(e => e.ScheduleId);
+        
+        modelBuilder.Entity<CareerCampus>()
+            .HasOne(e => e.InstitutionCampus)
+            .WithMany()
+            .HasForeignKey(e => e.InstitutionCampusId);
+        
+        modelBuilder.Entity<CareerCampusStats>()
+            .HasOne(e => e.CareerCampus)
+            .WithMany(x => x.CareerCampusStats)
+            .HasForeignKey(e => e.CareerCampusId);
+        
+        modelBuilder.Entity<CareerInstitution>()
+            .HasOne(e => e.Institution)
+            .WithMany()
+            .HasForeignKey(e => e.InstitutionId);
+        
+        modelBuilder.Entity<CareerInstitution>()
+            .HasOne(e => e.Career)
+            .WithMany(x => x.CareerInstitutions)
+            .HasForeignKey(e => e.CarrerId);
+        
+        modelBuilder.Entity<CareerInstitutionStats>()
+            .HasOne(e => e.CareerInstitution)
+            .WithMany(x => x.CareerInstitutionStats)
+            .HasForeignKey(e => e.CareerInstitutionId);
+        
+        modelBuilder.Entity<InstitutionCampus>()
+            .HasOne(e => e.Institution)
+            .WithMany(x => x.InstitutionCampuses)
+            .HasForeignKey(e => e.InstitutionId);
+        
+        modelBuilder.Entity<InstitutionCampus>()
+            .HasOne(e => e.Region)
+            .WithMany()
+            .HasForeignKey(e => e.RegionId);
+        
+        modelBuilder.Entity<InstitutionDetails>()
+            .HasOne(e => e.Institution)
+            .WithMany(x => x.InstitutionDetails)
+            .HasForeignKey(e => e.InstitutionId);
+        
+        modelBuilder.Entity<InstitutionDetails>()
+            .HasOne(e => e.AcreditationType)
+            .WithMany()
+            .HasForeignKey(e => e.AcreditationTypeId);
+        
+        modelBuilder.Entity<Institution>()
+            .HasOne(i => i.InstitutionType)
+            .WithMany()
+            .HasForeignKey(i => i.InstitutionTypeId);
     }
 }

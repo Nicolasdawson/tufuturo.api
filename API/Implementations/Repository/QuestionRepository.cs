@@ -15,6 +15,8 @@ public class QuestionRepository : Repository<Question>, IQuestionRepository
 
     public async Task<List<Question>> GetAllQuestions()
     {
-        return await _context.Questions.Where(x => !x.IsDeleted).ToListAsync();
+        return await _context.Questions
+            .Where(x => !x.IsDeleted)
+            .ToListAsync();
     }
 }

@@ -1,8 +1,6 @@
 using API.Abstractions;
 using API.Implementations;
 using API.Implementations.Repository;
-using API.Implementations.Repository.Entities;
-using API.Models;
 using Ardalis.Result;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,9 +19,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IAssessmentDomain, AssessmentDomain>();
 builder.Services.AddScoped<IStudentDomain, StudentDomain>();
 builder.Services.AddScoped<IQuestionsDomain, QuestionsDomain>();
+builder.Services.AddScoped<ICatalogsDomain, CatalogsDomain>();
+builder.Services.AddScoped<IInstitutionDomain, InstitutionDomain>();
+builder.Services.AddScoped<ICareerDomain, CareerDomain>();
+builder.Services.AddScoped<IUploadDataDomain, UploadDataDomain>();
 
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IInstitutionRepository, InstitutionRepository>();
+builder.Services.AddScoped<ICareerInstitutionRepository, CareerInstitutionRepository>();
+builder.Services.AddScoped<ICareerCampusRepository, CareerCampusRepository>();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -34,7 +39,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
             .Select(e => new ValidationError()
             {
                 Identifier = e.Key,
-                ErrorMessage = e.Value?.Errors.First().ErrorMessage
+                ErrorMessage = string.Join(",", e.Value?.Errors.Select(x => x.ErrorMessage) ?? Array.Empty<string>())
             });
 
         return new BadRequestObjectResult(errors);
@@ -55,4 +60,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+// app.Run();
+
+await app.RunAsync();
