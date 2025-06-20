@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/questions")]
 public class QuestionsController : ControllerBase
 {
     private readonly IQuestionsDomain _questionsDomain;

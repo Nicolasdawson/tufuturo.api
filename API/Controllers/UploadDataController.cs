@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiExplorerSettings(IgnoreApi = true)]
+[Route("api/upload-data")]
 public class UploadDataController : ControllerBase
 {
     private readonly IUploadDataDomain _uploadDataDomain;

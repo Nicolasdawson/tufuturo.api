@@ -24,6 +24,7 @@ builder.Services.AddScoped<IInstitutionDomain, InstitutionDomain>();
 builder.Services.AddScoped<ICareerDomain, CareerDomain>();
 builder.Services.AddScoped<IUploadDataDomain, UploadDataDomain>();
 
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IInstitutionRepository, InstitutionRepository>();
