@@ -31,6 +31,16 @@ builder.Services.AddScoped<IInstitutionRepository, InstitutionRepository>();
 builder.Services.AddScoped<ICareerInstitutionRepository, CareerInstitutionRepository>();
 builder.Services.AddScoped<ICareerCampusRepository, CareerCampusRepository>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.InvalidModelStateResponseFactory = actionContext =>
@@ -57,10 +67,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowAll");
+
 app.UseAuthorization();
 
 app.MapControllers();
-
-// app.Run();
 
 await app.RunAsync();
