@@ -8,24 +8,22 @@ namespace API.Implementations.Repository;
 public class Repository<T> : IRepository<T> where T : GenericEntity
 {
     private readonly ApplicationDbContext _context;
-    private readonly DbSet<T> _dbSet;
 
     public Repository(ApplicationDbContext context)
     {
         _context = context;
-        _dbSet = _context.Set<T>();
     }
 
     public async Task<T?> GetByIdAsync(int id)
     {
-        return await _dbSet.Where(x => !x.IsDeleted 
+        return await _context.Set<T>().Where(x => !x.IsDeleted 
                                        && x.Id == id)
             .FirstOrDefaultAsync();
     }
     
     public IQueryable<T> Get(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
     {
-        IQueryable<T> query = _dbSet;
+        IQueryable<T> query = _context.Set<T>();
 
         if (includeProperties != null)
         {
@@ -45,33 +43,33 @@ public class Repository<T> : IRepository<T> where T : GenericEntity
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await _dbSet.Where(x => !x.IsDeleted)
+        return await _context.Set<T>().Where(x => !x.IsDeleted)
             .AsNoTracking()
             .ToListAsync();
     }
 
     public async Task<T> AddAsync(T entity)
     {
-        _dbSet.Add(entity);
+        _context.Set<T>().Add(entity);
         await _context.SaveChangesAsync();
         return entity;
     }
 
     public async Task AddRangeAsync(IEnumerable<T> entities)
     {
-        await _dbSet.AddRangeAsync(entities);
+        await _context.Set<T>().AddRangeAsync(entities);
         await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(T entity)
     {
-        _dbSet.Update(entity);
+        _context.Set<T>().Update(entity);
         await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(T entity)
     {
-        _dbSet.Remove(entity);
+        _context.Set<T>().Remove(entity);
         await _context.SaveChangesAsync();
     }
 }

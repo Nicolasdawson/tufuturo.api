@@ -12,10 +12,10 @@ public class Institution : GenericEntity
     [Column("code")]
     public required string Code { get; set; }
     
-    [Column("institutionTypeId")]
+    [Column("institutiontypeid")]
     public int InstitutionTypeId { get; set; }
     
-    [ForeignKey("InstitutionTypeId")]
+    [ForeignKey("Institutiontypeid")]
     public InstitutionType InstitutionType { get; set; }
     public virtual ICollection<InstitutionDetails> InstitutionDetails { get; set; } = new List<InstitutionDetails>();
     public virtual ICollection<InstitutionCampus> InstitutionCampuses { get; set; } = new List<InstitutionCampus>();

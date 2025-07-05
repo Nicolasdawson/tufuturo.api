@@ -4,13 +4,13 @@ namespace API.Implementations;
 
 public interface IUploadDataDomain
 {
-    Task<Result> UploadInstitutions(FileStream file);
+    Task<Result> UploadInstitutions(Stream file);
 
-    Task<Result> UploadGenericsCareers(FileStream file);
+    Task<Result> UploadGenericsCareers(Stream file);
 
-    Task<Result> UploadCareersInstitution(FileStream file);
+    Task<Result> UploadCareersInstitution(Stream file);
 
-    Task<Result> UploadInstitutionCampus(FileStream file);
+    Task<Result> UploadInstitutionCampus(Stream file);
 
-    Task<Result> UploadCareersCampus(FileStream file);
+    Task<Result> UploadCareersCampus(Stream file);
 }

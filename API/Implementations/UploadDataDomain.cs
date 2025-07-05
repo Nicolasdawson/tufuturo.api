@@ -1,37 +1,39 @@
 using System.Data;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using API.Abstractions;
 using API.Implementations.Repository.Entities;
 using Ardalis.Result;
 using ExcelDataReader;
+using Npgsql;
 
 namespace API.Implementations;
 
 public class UploadDataDomain : IUploadDataDomain
 {
-    private readonly IRepository<Institution> _institutionRepository;
-    private readonly IRepository<InstitutionType> _institutionTypeRepository;
-    private readonly IRepository<AcreditationType> _acreditationTypeRepository;
-    private readonly IRepository<Career> _careerRepository;
-    private readonly IRepository<KnowledgeArea> _knowledgeAreaRepository;
-    private readonly IRepository<CareerInstitution> _careerInstitutionRepository;
-    private readonly IRepository<InstitutionCampus> _institutionCampusRepository;
-    private readonly IRepository<CareerCampus> _careerCampusRepository;
-    private readonly IRepository<Region> _regionRepository;
-    private readonly IRepository<Schedule> _scheduleRepository;
+    private readonly IInstitutionRepository _institutionRepository;
+    private readonly IInstitutionTypeRepository _institutionTypeRepository;
+    private readonly IAcreditationTypeRepository _acreditationTypeRepository;
+    private readonly ICareerRepository _careerRepository;
+    private readonly IKnowledgeAreaRepository _knowledgeAreaRepository;
+    private readonly ICareerInstitutionRepository _careerInstitutionRepository;
+    private readonly IInstitutionCampusRepository _institutionCampusRepository;
+    private readonly ICareerCampusRepository _careerCampusRepository;
+    private readonly IRegionRepository _regionRepository;
+    private readonly IScheduleRepository _scheduleRepository;
     private const int YearOfData = 2025;
 
-    public UploadDataDomain(IRepository<Institution> institutionRepository,
-        IRepository<InstitutionType> institutionTypeRepository,
-        IRepository<AcreditationType> acreditationTypeRepository,
-        IRepository<Career> careerRepository,
-        IRepository<KnowledgeArea> knowledgeAreaRepository,
-        IRepository<CareerInstitution> careerInstitutionRepository,
-        IRepository<InstitutionCampus> institutionCampusRepository,
-        IRepository<CareerCampus> careerCampusRepository,
-        IRepository<Region> regionRepository,
-        IRepository<Schedule> scheduleRepository)
+    public UploadDataDomain(IInstitutionRepository institutionRepository,
+        IInstitutionTypeRepository institutionTypeRepository,
+        IAcreditationTypeRepository acreditationTypeRepository,
+        ICareerRepository careerRepository,
+        IKnowledgeAreaRepository knowledgeAreaRepository,
+        ICareerInstitutionRepository careerInstitutionRepository,
+        IInstitutionCampusRepository institutionCampusRepository,
+        ICareerCampusRepository careerCampusRepository,
+        IRegionRepository regionRepository,
+        IScheduleRepository scheduleRepository)
     {
         _institutionRepository = institutionRepository;
         _institutionTypeRepository = institutionTypeRepository;
@@ -43,20 +45,32 @@ public class UploadDataDomain : IUploadDataDomain
         _careerCampusRepository = careerCampusRepository;
         _regionRepository = regionRepository;
         _scheduleRepository = scheduleRepository;
+        
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
-    public async Task<Result> UploadInstitutions(FileStream file)
+    public async Task<Result> UploadInstitutions(Stream file)
     {
-        var institutionTypes = await _institutionTypeRepository.GetAllAsync();
+        try
+        {
+            var acreditationTypes = await _acreditationTypeRepository.GetAllAsync();
+            
+            var institutionTypes = await _institutionTypeRepository.GetAllAsync();
 
-        var institutions = ParseExcelToInstitutions(file, institutionTypes.ToList());
+            var institutions = ParseExcelToInstitutions(file, institutionTypes.ToList(), acreditationTypes.ToList());
 
-        await _institutionRepository.AddRangeAsync(institutions);
+            await _institutionRepository.AddRangeAsync(institutions);
 
-        return Result.Success();
+            return Result.Success();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
-    public async Task<Result> UploadGenericsCareers(FileStream file)
+    public async Task<Result> UploadGenericsCareers(Stream file)
     {
         var knowledgeAreas = await _knowledgeAreaRepository.GetAllAsync();
 
@@ -66,7 +80,7 @@ public class UploadDataDomain : IUploadDataDomain
         return Result.Success();
     }
 
-    public async Task<Result> UploadCareersInstitution(FileStream file)
+    public async Task<Result> UploadCareersInstitution(Stream file)
     {
         var careers = await _careerRepository.GetAllAsync();
 
@@ -79,7 +93,7 @@ public class UploadDataDomain : IUploadDataDomain
         return Result.Success();
     }
 
-    public async Task<Result> UploadInstitutionCampus(FileStream file)
+    public async Task<Result> UploadInstitutionCampus(Stream file)
     {
         // Buscardor_de_carreras
 
@@ -94,7 +108,7 @@ public class UploadDataDomain : IUploadDataDomain
         return Result.Success();
     }
 
-    public async Task<Result> UploadCareersCampus(FileStream file)
+    public async Task<Result> UploadCareersCampus(Stream file)
     {
         // Buscardor_de_carreras
 
@@ -112,13 +126,17 @@ public class UploadDataDomain : IUploadDataDomain
         return Result.Success();
     }
 
-    private List<Institution> ParseExcelToInstitutions(FileStream file, List<InstitutionType> institutionTypes)
+    private List<Institution> ParseExcelToInstitutions(Stream file, List<InstitutionType> institutionTypes, List<AcreditationType> acreditationTypes)
     {
         List<Institution> result = new List<Institution>();
 
         try
         {
-            using var reader = ExcelReaderFactory.CreateReader(file);
+            using var reader = ExcelReaderFactory.CreateReader(file, new ExcelReaderConfiguration()
+            {
+                FallbackEncoding = Encoding.UTF8
+            });
+            
             var dataSet = reader.AsDataSet(new ExcelDataSetConfiguration()
             {
                 ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
@@ -133,22 +151,25 @@ public class UploadDataDomain : IUploadDataDomain
             {
                 var instituionName = row["Nombre institución"]?.ToString();
                 var instituionCode = row["Código institución"]?.ToString();
+                var institutionType = row["Tipo de institución"]?.ToString();
 
-                var institution = _institutionRepository.Get(x => !x.IsDeleted
-                                                                  && x.Name == instituionName
-                                                                  && x.Code == instituionCode)
-                    .FirstOrDefault();
+                // var institution = _institutionRepository.Get(x => !x.IsDeleted
+                //                                                   && x.Name == instituionName
+                //                                                   && x.Code == instituionCode)
+                //     .FirstOrDefault();
+
+                Institution? institution = null;
 
                 if (institution == null)
                 {
                     institution = new Institution()
                     {
-                        Name = row["Nombre institución"]?.ToString(),
-                        Code = row["Código institución"]?.ToString(),
+                        Name = instituionName,
+                        Code = instituionCode,
                     };
 
                     var institutionTypeId = institutionTypes
-                        .FirstOrDefault(x => x.Name == row["Tipo de institución"]?.ToString())?.Id;
+                        .FirstOrDefault(x => x.Name == institutionType)?.Id;
 
                     if (institutionTypeId is null)
                         break;
@@ -160,13 +181,16 @@ public class UploadDataDomain : IUploadDataDomain
                     break;
 
                 var instituionDetail = new InstitutionDetails();
+                
+                var acreditationType = acreditationTypes.FirstOrDefault(x => x.Name == row["Acreditación (31 de octubre de 2024)"]?.ToString());
 
-                var acreditationType = _acreditationTypeRepository.Get(x => !x.IsDeleted
-                                                                            && x.Name ==
-                                                                            row["Acreditación (31 de octubre de 2024)"]
-                                                                                .ToString())
-                    .FirstOrDefault();
-
+                // var acreditationType = _acreditationTypeRepository.Get(x => !x.IsDeleted
+                //                                                             && x.Name ==
+                //                                                             row["Acreditación (31 de octubre de 2024)"]
+                //                                                                 .ToString())
+                //     .FirstOrDefault();
+                //
+                
                 if (acreditationType is null)
                     break;
 
@@ -186,7 +210,7 @@ public class UploadDataDomain : IUploadDataDomain
                     var expireAt = row["Vigencia acreditación (31 de octubre de 2024)"]?.ToString();
                     instituionDetail.AcreditationExpireAt = ExtractDate(expireAt);
                 }
-
+                
                 instituionDetail.Builded = decimal.Parse(row["m² construidos"]?.ToString());
 
                 instituionDetail.BuildedLibrary = decimal.Parse(row["m² construidos biblioteca"]?.ToString());
@@ -212,7 +236,7 @@ public class UploadDataDomain : IUploadDataDomain
         return result;
     }
 
-    private List<Career> ParseExcelToGenericCareer(FileStream file, List<KnowledgeArea> knowledgeAreas)
+    private List<Career> ParseExcelToGenericCareer(Stream file, List<KnowledgeArea> knowledgeAreas)
     {
         List<Career> result = new List<Career>();
 
@@ -270,7 +294,7 @@ public class UploadDataDomain : IUploadDataDomain
         return result;
     }
 
-    private List<CareerInstitution> ParseExcelToCareerInstitution(FileStream file, List<Institution> institutions,
+    private List<CareerInstitution> ParseExcelToCareerInstitution(Stream file, List<Institution> institutions,
         List<Career> careers)
     {
         List<CareerInstitution> result = new List<CareerInstitution>();
@@ -393,7 +417,7 @@ public class UploadDataDomain : IUploadDataDomain
         return result;
     }
 
-    private List<InstitutionCampus> ParseExcelToInstitutionCampus(FileStream file, List<Region> regions,
+    private List<InstitutionCampus> ParseExcelToInstitutionCampus(Stream file, List<Region> regions,
         List<Institution> institutions)
     {
         List<InstitutionCampus> result = new List<InstitutionCampus>();
@@ -456,7 +480,7 @@ public class UploadDataDomain : IUploadDataDomain
         return result;
     }
 
-    private List<CareerCampus> ParseExcelToCareersCampus(FileStream file, List<CareerInstitution> careerInstitutions,
+    private List<CareerCampus> ParseExcelToCareersCampus(Stream file, List<CareerInstitution> careerInstitutions,
         List<Schedule> schedules,
         List<InstitutionCampus> institutionCampus)
     {

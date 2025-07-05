@@ -27,20 +27,20 @@ public class ApplicationDbContext : DbContext
     {
         modelBuilder.Entity<Region>().ToTable("region");
         modelBuilder.Entity<Schedule>().ToTable("schedule");
-        modelBuilder.Entity<KnowledgeArea>().ToTable("knowledgeArea");
+        modelBuilder.Entity<KnowledgeArea>().ToTable("knowledgearea");
         modelBuilder.Entity<Institution>().ToTable("institution");
         modelBuilder.Entity<Career>().ToTable("career");
         modelBuilder.Entity<Student>().ToTable("student");
         modelBuilder.Entity<Email>().ToTable("email");
         modelBuilder.Entity<Question>().ToTable("question");
-        modelBuilder.Entity<InstitutionType>().ToTable("institutionType");
-        modelBuilder.Entity<AcreditationType>().ToTable("acreditationType");
-        modelBuilder.Entity<CareerCampus>().ToTable("careerCampus");
-        modelBuilder.Entity<CareerCampusStats>().ToTable("careerCampusStats");
-        modelBuilder.Entity<CareerInstitution>().ToTable("careerInstitution");
-        modelBuilder.Entity<CareerInstitutionStats>().ToTable("careerInstitutionStats");
-        modelBuilder.Entity<InstitutionCampus>().ToTable("institutionCampus");
-        modelBuilder.Entity<InstitutionDetails>().ToTable("institutionDetails");
+        modelBuilder.Entity<InstitutionType>().ToTable("institutiontype");
+        modelBuilder.Entity<AcreditationType>().ToTable("acreditationtype");
+        modelBuilder.Entity<CareerCampus>().ToTable("careercampus");
+        modelBuilder.Entity<CareerCampusStats>().ToTable("careercampusstats");
+        modelBuilder.Entity<CareerInstitution>().ToTable("careerinstitution");
+        modelBuilder.Entity<CareerInstitutionStats>().ToTable("careerinstitutionstats");
+        modelBuilder.Entity<InstitutionCampus>().ToTable("institutioncampus");
+        modelBuilder.Entity<InstitutionDetails>().ToTable("institutiondetails");
 
         modelBuilder.Entity<Career>()
             .HasOne(c => c.KnowledgeArea)
@@ -112,4 +112,13 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(i => i.InstitutionTypeId);
     }
+    
+    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    // {
+    //     optionsBuilder.UseNpgsql("DefaultConnection", options =>
+    //         options.EnableRetryOnFailure(
+    //             maxRetryCount: 5,
+    //             maxRetryDelay: TimeSpan.FromSeconds(10),
+    //             errorCodesToAdd: null));
+    // }
 }

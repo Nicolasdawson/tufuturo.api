@@ -1,4 +1,7 @@
+using System.Net;
 using API.Abstractions;
+using API.Implementations.Repository.Entities;
+using API.Models;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -17,6 +20,7 @@ public class CatalogsController : ControllerBase
     
     [HttpGet]
     [Route("regions")]
+    [ProducesResponseType(typeof(List<Catalog>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetRegions()
     {
         var regions = await _catalogsDomain.GetRegions();
@@ -25,6 +29,7 @@ public class CatalogsController : ControllerBase
     
     [HttpGet]
     [Route("acreditation-types")]
+    [ProducesResponseType(typeof(List<Catalog>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetAcreditationTypes()
     {
         var acreditationTypes = await _catalogsDomain.GetAcreditationTypes();
@@ -33,6 +38,7 @@ public class CatalogsController : ControllerBase
     
     [HttpGet]
     [Route("institution-types")]
+    [ProducesResponseType(typeof(List<Catalog>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetInstitutionTypes()
     {
         var institutionTypes = await _catalogsDomain.GetInstitutionTypes();
@@ -41,6 +47,7 @@ public class CatalogsController : ControllerBase
     
     [HttpGet]
     [Route("knowledge-areas")]
+    [ProducesResponseType(typeof(List<Catalog>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetKnowledgeAreas()
     {
         var knowledgeAreas = await _catalogsDomain.GetKnowledgeAreas();
@@ -49,6 +56,7 @@ public class CatalogsController : ControllerBase
     
     [HttpGet]
     [Route("schedules")]
+    [ProducesResponseType(typeof(List<Catalog>), (int)HttpStatusCode.OK)]
     public async Task<IActionResult> GetSchedules()
     {
         var schedules = await _catalogsDomain.GetSchedules();

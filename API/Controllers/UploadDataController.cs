@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [ApiController]
-[ApiExplorerSettings(IgnoreApi = true)]
+// [ApiExplorerSettings(IgnoreApi = true)]
 [Route("api/upload-data")]
 public class UploadDataController : ControllerBase
 {
@@ -16,31 +16,33 @@ public class UploadDataController : ControllerBase
     }
     
     [HttpPost("institutions")]
-    public async Task PostInstitutions([FromForm] FileStream file)
+    [Consumes("multipart/form-data")]
+    public async Task PostInstitutions(IFormFile file)
     {
-       await _uploadDataDomain.UploadInstitutions(file);
+        using var stream = file.OpenReadStream();
+       await _uploadDataDomain.UploadInstitutions(stream);
     }
     
     [HttpPost("careers")]
-    public async Task PostCareers([FromForm] FileStream file)
+    public async Task PostCareers( FileStream file)
     {
         await _uploadDataDomain.UploadGenericsCareers(file);
     }
     
     [HttpPost("institutions/careers")]
-    public async Task PostCareersInstitutions([FromForm] FileStream file)
+    public async Task PostCareersInstitutions( FileStream file)
     {
         await _uploadDataDomain.UploadCareersInstitution(file);
     }
     
     [HttpPost("institutions/campus")]
-    public async Task PostInstitutionsCampus([FromForm] FileStream file)
+    public async Task PostInstitutionsCampus( FileStream file)
     {
         await _uploadDataDomain.UploadInstitutionCampus(file);
     }
     
     [HttpPost("institutions/campus/careers")]
-    public async Task CareersCampus([FromForm] FileStream file)
+    public async Task CareersCampus( FileStream file)
     {
         await _uploadDataDomain.UploadCareersCampus(file);
     }

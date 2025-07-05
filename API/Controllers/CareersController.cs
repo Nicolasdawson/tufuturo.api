@@ -19,7 +19,7 @@ public class CareersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<Result<List<Models.Career>>> GetCareers([FromQuery] CareerParams queryparams)
+    public async Task<PagedResult<List<Models.Career>>> GetCareers([FromQuery] CareerParams queryparams)
     {
         return await _careerDomain.GetCareers(queryparams);
     }

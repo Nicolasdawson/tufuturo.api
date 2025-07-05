@@ -21,7 +21,7 @@ public class CareerDomain : ICareerDomain
         _careerCampusRepository = careerCampusRepository;
     }
 
-    public async Task<Result<List<Models.Career>>> GetCareers(Models.CareerParams queryParams)
+    public async Task<PagedResult<List<Models.Career>>> GetCareers(Models.CareerParams queryParams)
     {
         var careers = _careerRepository.Get(x => !x.IsDeleted, "KnowledgeArea"
             // "Institution,KnowledgeArea,CareerInstitutions, CareerInstitutions.CareerCampuses,CareerInstitutions.CareerCampuses.InstitutionCampus" // necesito esto? 
@@ -73,7 +73,7 @@ public class CareerDomain : ICareerDomain
         var totalPages = count / queryParams.Take;
 
         PagedInfo pagedInfo = new PagedInfo(pageNumber, queryParams.Take, totalPages, count);
-
+        
         return Result.Success(careersResult).ToPagedResult(pagedInfo);
     }
 

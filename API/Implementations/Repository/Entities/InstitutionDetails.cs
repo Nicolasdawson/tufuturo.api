@@ -4,42 +4,42 @@ namespace API.Implementations.Repository.Entities;
 
 public class InstitutionDetails : GenericEntity
 {
-    [Column("yearOfData")]
+    [Column("yearofdata")]
     public int YearOfData { get; set; }
     
     [Column("acreditation")]
     public int? Acreditation { get; set; }
     
-    [Column("acreditationExpireAt")]
+    [Column("acreditationexpireat")]
     public DateTime? AcreditationExpireAt { get; set; }
     
     [Column("builded")]
     public decimal Builded { get; set; }
     
-    [Column("buildedLibrary")]
+    [Column("buildedlibrary")]
     public decimal BuildedLibrary { get; set; }
     
-    [Column("buildedLabs")]
+    [Column("buildedlabs")]
     public decimal BuildedLabs { get; set; }
     
     [Column("labs")]
     public int Labs { get; set; }
     
-    [Column("computersPerStudent")]
+    [Column("computersperstudent")]
     public decimal ComputersPerStudent { get; set; }
     
-    [Column("greenArea")]
+    [Column("greenarea")]
     public decimal GreenArea { get; set; }
     
-    [Column("institutionId")]
+    [Column("institutionid")]
     public int InstitutionId { get; set; }
     
-    [ForeignKey("institutionId")]
+    [ForeignKey("institutionid")]
     public Institution Institution { get; set; }
     
-    [Column("acreditationTypeId")]
+    [Column("acreditationtypeid")]
     public int AcreditationTypeId { get; set; }
     
-    [ForeignKey("acreditationTypeId")]
+    [ForeignKey("acreditationtypeid")]
     public AcreditationType AcreditationType { get; set; }
 }
