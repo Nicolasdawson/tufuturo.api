@@ -15,7 +15,7 @@ public class Institution : GenericEntity
     [Column("institutiontypeid")]
     public int InstitutionTypeId { get; set; }
     
-    [ForeignKey("Institutiontypeid")]
+    [ForeignKey("InstitutionTypeId")]
     public InstitutionType InstitutionType { get; set; }
     public virtual ICollection<InstitutionDetails> InstitutionDetails { get; set; } = new List<InstitutionDetails>();
     public virtual ICollection<InstitutionCampus> InstitutionCampuses { get; set; } = new List<InstitutionCampus>();

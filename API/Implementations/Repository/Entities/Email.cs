@@ -11,14 +11,14 @@ public class Email : GenericEntity
     public string Type { get; set; } = string.Empty;
     
     [Required]
-    [Column("deliveryDate")]
+    [Column("deliverydate")]
     public DateOnly DeliveryDate { get; set; }
     
     [Required]
-    [Column("isDelivered")]
+    [Column("isdelivered")]
     public bool IsDelivered { get; set; }
     
-    [Column("studentId")]
+    [Column("studentid")]
     public int StudentId { get; set; }
     
     [ForeignKey("StudentId")]

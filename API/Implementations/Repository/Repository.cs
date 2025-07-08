@@ -44,7 +44,7 @@ public class Repository<T> : IRepository<T> where T : GenericEntity
     public async Task<IEnumerable<T>> GetAllAsync()
     {
         return await _context.Set<T>().Where(x => !x.IsDeleted)
-            .AsNoTracking()
+             .AsNoTracking()
             .ToListAsync();
     }
 
@@ -57,7 +57,7 @@ public class Repository<T> : IRepository<T> where T : GenericEntity
 
     public async Task AddRangeAsync(IEnumerable<T> entities)
     {
-        await _context.Set<T>().AddRangeAsync(entities);
+        _context.Set<T>().AddRange(entities);
         await _context.SaveChangesAsync();
     }
 

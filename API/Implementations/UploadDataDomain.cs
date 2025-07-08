@@ -6,34 +6,56 @@ using API.Abstractions;
 using API.Implementations.Repository.Entities;
 using Ardalis.Result;
 using ExcelDataReader;
+using Microsoft.EntityFrameworkCore;
 using Npgsql;
 
 namespace API.Implementations;
 
 public class UploadDataDomain : IUploadDataDomain
 {
-    private readonly IInstitutionRepository _institutionRepository;
-    private readonly IInstitutionTypeRepository _institutionTypeRepository;
-    private readonly IAcreditationTypeRepository _acreditationTypeRepository;
-    private readonly ICareerRepository _careerRepository;
-    private readonly IKnowledgeAreaRepository _knowledgeAreaRepository;
-    private readonly ICareerInstitutionRepository _careerInstitutionRepository;
-    private readonly IInstitutionCampusRepository _institutionCampusRepository;
+    // private readonly IInstitutionRepository _institutionRepository;
+    // private readonly IInstitutionTypeRepository _institutionTypeRepository;
+    // private readonly IAcreditationTypeRepository _acreditationTypeRepository;
+    // private readonly ICareerRepository _careerRepository;
+    // private readonly IKnowledgeAreaRepository _knowledgeAreaRepository;
+    // private readonly ICareerInstitutionRepository _careerInstitutionRepository;
+    // private readonly IInstitutionCampusRepository _institutionCampusRepository;
+    // private readonly ICareerCampusRepository _careerCampusRepository;
+    // private readonly IRegionRepository _regionRepository;
+    // private readonly IScheduleRepository _scheduleRepository;
+    private readonly IRepository<Institution> _institutionRepository;
+    private readonly IRepository<InstitutionType> _institutionTypeRepository;
+    private readonly IRepository<AcreditationType> _acreditationTypeRepository;
+    private readonly IRepository<Career> _careerRepository;
+    private readonly IRepository<KnowledgeArea> _knowledgeAreaRepository;
+    private readonly IRepository<CareerInstitution> _careerInstitutionRepository;
+    private readonly IRepository<InstitutionCampus> _institutionCampusRepository;
     private readonly ICareerCampusRepository _careerCampusRepository;
-    private readonly IRegionRepository _regionRepository;
-    private readonly IScheduleRepository _scheduleRepository;
+    private readonly IRepository<Region> _regionRepository;
+    private readonly IRepository<Schedule> _scheduleRepository;
     private const int YearOfData = 2025;
 
-    public UploadDataDomain(IInstitutionRepository institutionRepository,
-        IInstitutionTypeRepository institutionTypeRepository,
-        IAcreditationTypeRepository acreditationTypeRepository,
-        ICareerRepository careerRepository,
-        IKnowledgeAreaRepository knowledgeAreaRepository,
-        ICareerInstitutionRepository careerInstitutionRepository,
-        IInstitutionCampusRepository institutionCampusRepository,
+    public UploadDataDomain(
+        // IInstitutionRepository institutionRepository,
+        // IInstitutionTypeRepository institutionTypeRepository,
+        // IAcreditationTypeRepository acreditationTypeRepository,
+        // ICareerRepository careerRepository,
+        // IKnowledgeAreaRepository knowledgeAreaRepository,
+        // ICareerInstitutionRepository careerInstitutionRepository,
+        // IInstitutionCampusRepository institutionCampusRepository,
+        // ICareerCampusRepository careerCampusRepository,
+        // IRegionRepository regionRepository,
+        // IScheduleRepository scheduleRepository)
+        IRepository<Institution> institutionRepository,
+        IRepository<InstitutionType> institutionTypeRepository,
+        IRepository<AcreditationType> acreditationTypeRepository,
+        IRepository<Career> careerRepository,
+        IRepository<KnowledgeArea> knowledgeAreaRepository,
+        IRepository<CareerInstitution> careerInstitutionRepository,
+        IRepository<InstitutionCampus> institutionCampusRepository,
         ICareerCampusRepository careerCampusRepository,
-        IRegionRepository regionRepository,
-        IScheduleRepository scheduleRepository)
+        IRepository<Region> regionRepository,
+        IRepository<Schedule> scheduleRepository)
     {
         _institutionRepository = institutionRepository;
         _institutionTypeRepository = institutionTypeRepository;
@@ -45,7 +67,7 @@ public class UploadDataDomain : IUploadDataDomain
         _careerCampusRepository = careerCampusRepository;
         _regionRepository = regionRepository;
         _scheduleRepository = scheduleRepository;
-        
+
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
@@ -54,7 +76,7 @@ public class UploadDataDomain : IUploadDataDomain
         try
         {
             var acreditationTypes = await _acreditationTypeRepository.GetAllAsync();
-            
+
             var institutionTypes = await _institutionTypeRepository.GetAllAsync();
 
             var institutions = ParseExcelToInstitutions(file, institutionTypes.ToList(), acreditationTypes.ToList());
@@ -121,12 +143,61 @@ public class UploadDataDomain : IUploadDataDomain
         var careersCampus =
             ParseExcelToCareersCampus(file, careerInstitutions.ToList(), schedules.ToList(), campuses.ToList());
 
-        await _careerCampusRepository.AddRangeAsync(careersCampus);
+        try
+        {
+            await _careerCampusRepository.AddRangeAsync(careersCampus);
+        }
+        catch (DbUpdateException ex)
+        {
+            // This might happen if the entity already exists or there's a data issue.
+            if (ex.InnerException is PostgresException pgEx)
+            {
+                Console.WriteLine($"Skipping duplicate or invalid record. PostgreSQL Error: {pgEx.SqlState} - {pgEx.MessageText}");
+            }
+            else
+            {
+                Console.WriteLine($"Skipping duplicate or invalid record. Error: {ex.Message}");
+            }
+            // It's often safe to continue processing other records.
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An unexpected error occurred while adding a record: {ex.Message}");
+            // Depending on the severity, you might want to re-throw or just log and continue.
+        }
+        
+        // foreach (var careerCampus in careersCampus)
+        // {
+        //     try
+        //     {
+        //         await _careerCampusRepository.AddAsync(careerCampus);
+        //     }
+        //     catch (DbUpdateException ex)
+        //     {
+        //         // This might happen if the entity already exists or there's a data issue.
+        //         if (ex.InnerException is PostgresException pgEx)
+        //         {
+        //             Console.WriteLine($"Skipping duplicate or invalid record. PostgreSQL Error: {pgEx.SqlState} - {pgEx.MessageText}");
+        //         }
+        //         else
+        //         {
+        //             Console.WriteLine($"Skipping duplicate or invalid record. Error: {ex.Message}");
+        //         }
+        //         // It's often safe to continue processing other records.
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Console.WriteLine($"An unexpected error occurred while adding a record: {ex.Message}");
+        //         // Depending on the severity, you might want to re-throw or just log and continue.
+        //     }
+        // }
+        
 
         return Result.Success();
     }
 
-    private List<Institution> ParseExcelToInstitutions(Stream file, List<InstitutionType> institutionTypes, List<AcreditationType> acreditationTypes)
+    private List<Institution> ParseExcelToInstitutions(Stream file, List<InstitutionType> institutionTypes,
+        List<AcreditationType> acreditationTypes)
     {
         List<Institution> result = new List<Institution>();
 
@@ -136,7 +207,7 @@ public class UploadDataDomain : IUploadDataDomain
             {
                 FallbackEncoding = Encoding.UTF8
             });
-            
+
             var dataSet = reader.AsDataSet(new ExcelDataSetConfiguration()
             {
                 ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
@@ -172,27 +243,21 @@ public class UploadDataDomain : IUploadDataDomain
                         .FirstOrDefault(x => x.Name == institutionType)?.Id;
 
                     if (institutionTypeId is null)
-                        break;
+                        continue;
 
                     institution.InstitutionTypeId = institutionTypeId.Value;
                 }
 
                 if (institution.InstitutionDetails.Any(x => x.YearOfData == YearOfData))
-                    break;
+                    continue;
 
                 var instituionDetail = new InstitutionDetails();
-                
-                var acreditationType = acreditationTypes.FirstOrDefault(x => x.Name == row["Acreditación (31 de octubre de 2024)"]?.ToString());
 
-                // var acreditationType = _acreditationTypeRepository.Get(x => !x.IsDeleted
-                //                                                             && x.Name ==
-                //                                                             row["Acreditación (31 de octubre de 2024)"]
-                //                                                                 .ToString())
-                //     .FirstOrDefault();
-                //
-                
+                var acreditationType = acreditationTypes.FirstOrDefault(x =>
+                    x.Name == row["Acreditación (31 de octubre de 2024)"]?.ToString());
+
                 if (acreditationType is null)
-                    break;
+                    continue;
 
                 instituionDetail.AcreditationTypeId = acreditationType.Id;
 
@@ -204,24 +269,49 @@ public class UploadDataDomain : IUploadDataDomain
 
                 if (acreditationNames.Contains(acreditationType.Name))
                 {
-                    instituionDetail.Acreditation =
-                        int.Parse(row["Años acreditación (31 de octubre de 2024)"]?.ToString());
+                    if (int.TryParse(row["Años acreditación (31 de octubre de 2024)"]?.ToString(),
+                            out int acreditation))
+                    {
+                        instituionDetail.Acreditation = acreditation;
+                    }
 
                     var expireAt = row["Vigencia acreditación (31 de octubre de 2024)"]?.ToString();
+
                     instituionDetail.AcreditationExpireAt = ExtractDate(expireAt);
                 }
-                
-                instituionDetail.Builded = decimal.Parse(row["m² construidos"]?.ToString());
 
-                instituionDetail.BuildedLibrary = decimal.Parse(row["m² construidos biblioteca"]?.ToString());
+                if (decimal.TryParse(row["m² construidos"]?.ToString(), out decimal builded))
+                {
+                    instituionDetail.Builded = builded;
+                }
 
-                instituionDetail.BuildedLabs = decimal.Parse(row["m² construidos laboratorios y talleres"]?.ToString());
+                if (decimal.TryParse(row["m² construidos biblioteca"]?.ToString(), out decimal buildedLibrary))
+                {
+                    instituionDetail.BuildedLibrary = buildedLibrary;
+                }
 
-                instituionDetail.Labs = int.Parse(row["N° de laboratorios y talleres"]?.ToString());
+                if (decimal.TryParse(row["m² construidos laboratorios y talleres"]?.ToString(),
+                        out decimal buildedLabs))
+                {
+                    instituionDetail.BuildedLabs = buildedLabs;
+                }
 
-                instituionDetail.ComputersPerStudent = int.Parse(row["N° de computadores"]?.ToString());
+                if (int.TryParse(row["N° de laboratorios y talleres"]?.ToString(), out int labs))
+                {
+                    instituionDetail.Labs = labs;
+                }
 
-                instituionDetail.GreenArea = int.Parse(row["m² áreas verdes y esparcimiento"]?.ToString());
+                if (int.TryParse(row["N° de computadores"]?.ToString(), out int computersPerStudent))
+                {
+                    instituionDetail.ComputersPerStudent = computersPerStudent;
+                }
+
+                if (int.TryParse(row["m² áreas verdes y esparcimiento"]?.ToString(), out int greenArea))
+                {
+                    instituionDetail.GreenArea = greenArea;
+                }
+
+                instituionDetail.YearOfData = YearOfData;
 
                 institution.InstitutionDetails.Add(instituionDetail);
 
@@ -254,7 +344,7 @@ public class UploadDataDomain : IUploadDataDomain
             DataTable table = dataSet.Tables[0];
 
             var distinctRows = table.AsEnumerable()
-                .GroupBy(row => row.Field<string>("Área Carrera Genérica"))
+                .GroupBy(row => row["Área Carrera Genérica"]?.ToString())
                 .Select(group => group.First())
                 .ToList();
 
@@ -263,9 +353,11 @@ public class UploadDataDomain : IUploadDataDomain
                 var knowlageArea = row["Área del conocimiento"]?.ToString();
                 var genericCareer = row["Área Carrera Genérica"]?.ToString();
 
-                var career = _careerRepository.Get(x => !x.IsDeleted
-                                                        && x.Name == genericCareer)
-                    .FirstOrDefault();
+                // var career = _careerRepository.Get(x => !x.IsDeleted
+                //                                         && x.Name == genericCareer)
+                //     .FirstOrDefault();
+
+                Career? career = null;
 
                 if (career == null)
                 {
@@ -278,7 +370,7 @@ public class UploadDataDomain : IUploadDataDomain
                         .FirstOrDefault(x => x.Name == knowlageArea)?.Id;
 
                     if (knowlageAreaId is null)
-                        break;
+                        continue;
 
                     career.KnowledgeAreaId = knowlageAreaId.Value;
                 }
@@ -317,10 +409,13 @@ public class UploadDataDomain : IUploadDataDomain
                 var instituionName = row["Nombre de institución"]?.ToString();
                 var genericCareerName = row["Nombre carrera genérica"]?.ToString();
                 var institutionCareerName = row["Nombre carrera (del título)"]?.ToString();
+                var institutionCode = row["Código"]?.ToString();
 
-                var careerInstitution = _careerInstitutionRepository.Get(x => !x.IsDeleted
-                                                                              && x.Name == instituionName)
-                    .FirstOrDefault();
+                // var careerInstitution = _careerInstitutionRepository.Get(x => !x.IsDeleted
+                //                                                               && x.Name == instituionName)
+                //     .FirstOrDefault();
+
+                CareerInstitution? careerInstitution = null;
 
                 if (careerInstitution == null)
                 {
@@ -333,21 +428,25 @@ public class UploadDataDomain : IUploadDataDomain
                         .FirstOrDefault(x => x.Name == genericCareerName)?.Id;
 
                     if (genericCareerId is null)
-                        break;
+                    {
+                        continue;
+                    }
 
                     careerInstitution.CarrerId = genericCareerId.Value;
 
                     var institutionId = institutions
-                        .FirstOrDefault(x => x.Name == instituionName)?.Id;
+                        .FirstOrDefault(x => x.Code == institutionCode)?.Id;
 
                     if (institutionId is null)
-                        break;
+                    {
+                        continue;
+                    }
 
                     careerInstitution.InstitutionId = institutionId.Value;
                 }
 
                 if (careerInstitution.CareerInstitutionStats.Any(x => x.YearOfData == YearOfData))
-                    break;
+                    continue;
 
                 var careerInstitutionStats = new CareerInstitutionStats();
 
@@ -367,40 +466,45 @@ public class UploadDataDomain : IUploadDataDomain
                 if (decimal.TryParse(row["Empleabilidad 2° año"]?.ToString(), out var employabilitySecondYear))
                     careerInstitutionStats.EmployabilitySecondYear = employabilitySecondYear;
 
-                var avarageSalary = row["Ingreso Promedio al 4° año"]?.ToString();
-
-                var regex = new Regex(@"\$?(?:(\d+)\s+millón\s*)?(\d+)\s+mil", RegexOptions.IgnoreCase);
-                var matches = regex.Matches(avarageSalary);
-
-                for (int i = 0; i < 1; i++)
-                {
-                    var avarageSalaryNumber = 0;
-
-                    int millones = matches[i].Groups[1].Success ? int.Parse(matches[i].Groups[1].Value) : 0;
-                    int miles = matches[i].Groups[2].Success ? int.Parse(matches[i].Groups[2].Value) : 0;
-
-                    if (millones > 0)
-                    {
-                        avarageSalaryNumber = millones * 1_000_000;
-                    }
-                    else if (miles > 0)
-                    {
-                        avarageSalaryNumber = miles * 1_000;
-                    }
-
-                    if (i == 0)
-                    {
-                        careerInstitutionStats.AvarageSalaryFrom = avarageSalaryNumber;
-                    }
-                    else if (i == 1)
-                    {
-                        careerInstitutionStats.AvarageSalaryTo = avarageSalaryNumber;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                // var avarageSalary = row["Ingreso Promedio al 4° año"]?.ToString();
+                //
+                // var regex = new Regex(@"\$?(?:(\d+)\s+millón\s*)?(\d+)\s+mil", RegexOptions.IgnoreCase);
+                // var matches = regex.Matches(avarageSalary);
+                //
+                // if (matches.Count > 0)
+                // {
+                //     for (int i = 0; i < 1; i++)
+                //     {
+                //         var avarageSalaryNumber = 0;
+                //
+                //         int millones = matches[i].Groups[1].Success ? int.Parse(matches[i].Groups[1].Value) : 0;
+                //         int miles = matches[i].Groups[2].Success ? int.Parse(matches[i].Groups[2].Value) : 0;
+                //
+                //         if (millones > 0)
+                //         {
+                //             avarageSalaryNumber += millones * 1_000_000;
+                //         }
+                //         
+                //         if (miles > 0)
+                //         {
+                //             avarageSalaryNumber += miles * 1_000;
+                //         }
+                //
+                //         if (i == 0)
+                //         {
+                //             careerInstitutionStats.AvarageSalaryFrom = avarageSalaryNumber;
+                //             avarageSalaryNumber = 0;
+                //         }
+                //         else if (i == 1)
+                //         {
+                //             careerInstitutionStats.AvarageSalaryTo = avarageSalaryNumber;
+                //         }
+                //         else
+                //         {
+                //             continue;
+                //         }
+                //     }
+                // }
 
                 careerInstitutionStats.YearOfData = YearOfData;
 
@@ -444,22 +548,24 @@ public class UploadDataDomain : IUploadDataDomain
             {
                 var campusName = row["Sede"]?.ToString();
 
-                var institutionName = row["Nombre institución"]?.ToString();
+                var institutionCode = row["Código institución "]?.ToString();
 
-                var institutionId = institutions.FirstOrDefault(x => x.Name == institutionName)?.Id;
+                var institutionId = institutions.FirstOrDefault(x => x.Code == institutionCode)?.Id;
 
                 if (institutionId is null)
-                    break;
+                    continue;
 
-                var campus = _institutionCampusRepository.Get(x => !x.IsDeleted && x.Name == campusName)
-                    .FirstOrDefault();
+                // var campus = _institutionCampusRepository.Get(x => !x.IsDeleted && x.Name == campusName)
+                //     .FirstOrDefault();
+
+                InstitutionCampus? campus = null;
 
                 if (campus is null)
                 {
                     var regionId = regions.FirstOrDefault(x => x.Name == row["Región"]?.ToString() && !x.IsDeleted)?.Id;
 
                     if (regionId is null)
-                        break;
+                        continue;
 
                     campus = new InstitutionCampus()
                     {
@@ -504,33 +610,48 @@ public class UploadDataDomain : IUploadDataDomain
                 var campusName = row["Sede"]?.ToString();
 
                 var campusCareerName = row["Nombre carrera"]?.ToString();
+                
+                if (string.IsNullOrWhiteSpace(campusName))
+                    continue;
 
                 var scheduleName = row["Jornada"]?.ToString();
+
+                var genericCareerName = row["Área Carrera Genérica"]?.ToString();
 
                 var scheduleId = schedules.FirstOrDefault(x => x.Name == scheduleName)?.Id;
 
                 if (scheduleId is null)
-                    break;
+                    continue;
 
-                var campusInstitutionId = institutionCampus.FirstOrDefault(x => x.Name == campusName)?.Id;
+                var campusInstitution = institutionCampus.FirstOrDefault(x => x.Name == campusName);
 
-                if (campusInstitutionId is null)
-                    break;
+                if (campusInstitution is null)
+                    continue;
 
-                var campusCareer = _careerCampusRepository.Get(x => !x.IsDeleted
-                                                                    && x.Name == campusCareerName
-                                                                    && x.ScheduleId == scheduleId.Value
-                                                                    && x.InstitutionCampusId == campusInstitutionId)
-                    .FirstOrDefault();
+                var careerInstitutionId = careerInstitutions
+                    .FirstOrDefault(x =>
+                        x.Name == genericCareerName && x.InstitutionId == campusInstitution.InstitutionId)?.Id;
+
+                if (careerInstitutionId is null)
+                    continue;
+
+                // var campusCareer = _careerCampusRepository.Get(x => !x.IsDeleted
+                //                                                     && x.Name == campusCareerName
+                //                                                     && x.ScheduleId == scheduleId.Value
+                //                                                     && x.InstitutionCampusId == campusInstitutionId)
+                //     .FirstOrDefault();
+
+                CareerCampus? campusCareer = null;
 
                 if (campusCareer is null)
                 {
                     campusCareer = new CareerCampus()
                     {
-                        Name = campusCareerName,
-                        InstitutionCampusId = campusInstitutionId.Value,
-                        ScheduleId = scheduleId.Value
-                        // institutionCarreer revisar como linkealo
+                        Name = campusCareerName!,
+                        InstitutionCampusId = campusInstitution.Id,
+                        ScheduleId = scheduleId.Value,
+                        CareerInstitutionId = careerInstitutionId.Value,
+                        IsDeleted = false
                     };
                 }
 
@@ -561,7 +682,7 @@ public class UploadDataDomain : IUploadDataDomain
                     if (decimal.TryParse(row["Municipal y Servicios Locales"]?.ToString(), out var publicSchoolRate))
                         careerCampusStats.PublicSchoolRate = publicSchoolRate;
 
-                    if (decimal.TryParse(row["Particular Subvencionado"]?.ToString(), out var subsidizedSchoolRate))
+                    if (decimal.TryParse(row["Particular Subvencionado "]?.ToString(), out var subsidizedSchoolRate))
                         careerCampusStats.SubsidizedSchoolRate = subsidizedSchoolRate;
 
                     if (decimal.TryParse(row["Particular Pagado"]?.ToString(), out var privateSchoolRate))
@@ -577,7 +698,7 @@ public class UploadDataDomain : IUploadDataDomain
                         careerCampusStats.TotalDegrees = totalDegrees;
 
                     var firstYearEntryRange = row["Rango ingreso a 1er año con PAES 2023"]?.ToString();
-                    
+
                     var matchesRange = Regex.Matches(firstYearEntryRange, @"\d+");
 
                     if (matchesRange.Count >= 2)
@@ -585,43 +706,46 @@ public class UploadDataDomain : IUploadDataDomain
                         careerCampusStats.FirstYearEntryFrom = int.Parse(matchesRange[0].Value);
                         careerCampusStats.FirstYearEntryTo = int.Parse(matchesRange[1].Value);
                     }
-                    
-                    if (decimal.TryParse(row["Promedio PAES 2023 de Matrícula 1er año 2023"]?.ToString(), out var avargePaes))
+
+                    if (decimal.TryParse(row["Promedio PAES 2023 de Matrícula 1er año 2023"]?.ToString(),
+                            out var avargePaes))
                         careerCampusStats.AvargePaes = avargePaes;
-                    
-                    if (decimal.TryParse(row["Promedio NEM 2023 de Matrícula 2023"]?.ToString(), out var avarageEnrollment))
+
+                    if (decimal.TryParse(row["Promedio NEM 2023 de Matrícula 2023"]?.ToString(),
+                            out var avarageEnrollment))
                         careerCampusStats.AvarageEnrollment = avarageEnrollment;
-                    
+
                     if (int.TryParse(row["Vacantes 1er semestre "]?.ToString(), out var vacanciesFirstSemester))
                         careerCampusStats.VacanciesFirstSemester = vacanciesFirstSemester;
-                    
+
                     if (int.TryParse(row["NEM"]?.ToString(), out var nem))
                         careerCampusStats.Nem = nem;
-                    
-                    if (int.TryParse(row["Ranking"]?.ToString(), out var ranking))
+
+                    if (int.TryParse(row["Ranking "]?.ToString(), out var ranking))
                         careerCampusStats.Ranking = ranking;
-                    
+
                     if (int.TryParse(row["PAES Lenguaje"]?.ToString(), out var paesLanguaje))
                         careerCampusStats.PaesLanguaje = paesLanguaje;
-                    
-                    if (int.TryParse(row["PAES Matemáticas"]?.ToString(), out var paesMaths))
+
+                    if (int.TryParse(row["PAES Matemáticas "]?.ToString(), out var paesMaths))
                         careerCampusStats.PaesMaths = paesMaths;
-                    
+
                     if (int.TryParse(row["PAES Matemáticas 2"]?.ToString(), out var paesMaths2))
                         careerCampusStats.PaesMaths2 = paesMaths2;
-                    
-                    if (int.TryParse(row["PAES Historia"]?.ToString(), out var paesHistory))
+
+                    if (int.TryParse(row["PAES Historia "]?.ToString(), out var paesHistory))
                         careerCampusStats.PaesHistory = paesHistory;
-                    
-                    if (int.TryParse(row["PAES Ciencias"]?.ToString(), out var paesSciences))
+
+                    if (int.TryParse(row["PAES Ciencias "]?.ToString(), out var paesSciences))
                         careerCampusStats.PaesSciences = paesSciences;
-                    
-                    if (int.TryParse(row["Otros"]?.ToString(), out var others)) // estas columnas tienen espacio, talve no las agarra
+
+                    if (int.TryParse(row["Otros "]?.ToString(),
+                            out var others))
                         careerCampusStats.Others = others;
-                    
+
                     careerCampusStats.YearOfData = YearOfData;
 
-                    campusCareer.CareerCampusStats.Add(careerCampusStats);
+                    // campusCareer.CareerCampusStats.Add(careerCampusStats);
                 }
 
                 result.Add(campusCareer);
@@ -641,14 +765,14 @@ public class UploadDataDomain : IUploadDataDomain
 
         if (hastaIndex != -1)
         {
-            string datePart = date.Substring(hastaIndex, "hasta".Length).Trim(); // creo que deberia ocupar date
+            string datePart = date.Substring(hastaIndex + 6).Trim();
 
             var culture = new CultureInfo("es-ES");
 
             if (DateTime.TryParseExact(datePart, "d 'de' MMMM 'de' yyyy", culture, DateTimeStyles.None,
                     out DateTime parsedDate))
             {
-                return parsedDate;
+                return DateTime.SpecifyKind(parsedDate, DateTimeKind.Utc);
             }
         }
 

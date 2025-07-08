@@ -5,24 +5,24 @@ namespace API.Implementations.Repository.Entities;
 public class CareerCampus : GenericEntity
 {
     [Column("name")]
-    public required string Name { get; set; }
+    public string Name { get; set; }
     
-    [Column("careerInstitution")]
+    [Column("careerinstitutionid")]
     public int CareerInstitutionId { get; set; }
     
-    [ForeignKey("careerInstitution")]
+    [ForeignKey("CareerInstitutionId")]
     public CareerInstitution CareerInstitution { get; set; }
     
-    [Column("scheduleId")]
+    [Column("scheduleid")]
     public int ScheduleId { get; set; }
     
-    [ForeignKey("scheduleId")]
+    [ForeignKey("ScheduleId")]
     public Schedule Schedule { get; set; }
     
-    [Column("institutionCampusId")]
+    [Column("institutioncampusid")]
     public int InstitutionCampusId { get; set; }
     
-    [ForeignKey("institutionCampusId")]
+    [ForeignKey("InstitutionCampusId")]
     public InstitutionCampus InstitutionCampus { get; set; }
     
     public virtual ICollection<CareerCampusStats> CareerCampusStats { get; set; } = new List<CareerCampusStats>();

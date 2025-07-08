@@ -34,12 +34,12 @@ public class InstitutionDetails : GenericEntity
     [Column("institutionid")]
     public int InstitutionId { get; set; }
     
-    [ForeignKey("institutionid")]
+    [ForeignKey("InstitutionId")]
     public Institution Institution { get; set; }
     
     [Column("acreditationtypeid")]
     public int AcreditationTypeId { get; set; }
     
-    [ForeignKey("acreditationtypeid")]
+    [ForeignKey("AcreditationTypeId")]
     public AcreditationType AcreditationType { get; set; }
 }

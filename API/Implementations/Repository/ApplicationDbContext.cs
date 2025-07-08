@@ -112,13 +112,4 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(i => i.InstitutionTypeId);
     }
-    
-    // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    // {
-    //     optionsBuilder.UseNpgsql("DefaultConnection", options =>
-    //         options.EnableRetryOnFailure(
-    //             maxRetryCount: 5,
-    //             maxRetryDelay: TimeSpan.FromSeconds(10),
-    //             errorCodesToAdd: null));
-    // }
 }
