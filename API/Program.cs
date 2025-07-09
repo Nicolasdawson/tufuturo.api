@@ -43,9 +43,9 @@ builder.Services.AddScoped<ICareerCampusRepository, CareerCampusRepository>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://tufuturo-frontend-gxgsfcbcapfrashs.canadacentral-01.azurewebsites.net")
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
@@ -60,7 +60,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
             .Select(e => new ValidationError()
             {
                 Identifier = e.Key,
-                ErrorMessage = string.Join(",", e.Value?.Errors.Select(x => x.ErrorMessage) ?? Array.Empty<string>())
+                ErrorMessage = string.Join(",", e.Value?.Errors.Select(x => x.ErrorMessage) ?? [])
             });
 
         return new BadRequestObjectResult(errors);
@@ -77,7 +77,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 
 app.UseAuthorization();
 
