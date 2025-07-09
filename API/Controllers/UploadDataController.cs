@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [ApiController]
-// [ApiExplorerSettings(IgnoreApi = true)]
+[ApiExplorerSettings(IgnoreApi = true)]
 [Route("api/upload-data")]
 public class UploadDataController : ControllerBase
 {
@@ -19,7 +19,6 @@ public class UploadDataController : ControllerBase
     [Consumes("multipart/form-data")]
     public async Task PostInstitutions(IFormFile file)
     {
-        // OK
         using var stream = file.OpenReadStream();
        await _uploadDataDomain.UploadInstitutions(stream);
     }
@@ -27,7 +26,6 @@ public class UploadDataController : ControllerBase
     [HttpPost("careers")]
     public async Task PostCareers(IFormFile file)
     {
-        // OK 
         using var stream = file.OpenReadStream();
         await _uploadDataDomain.UploadGenericsCareers(stream);
     }
@@ -35,7 +33,7 @@ public class UploadDataController : ControllerBase
     [HttpPost("institutions/careers")]
     public async Task PostCareersInstitutions(IFormFile file)
     {
-        // OK **AUNQUE** hay que cambiar la tabla de detalle
+        // TODO: **AUNQUE** hay que cambiar la tabla de detalle
         // estaba ocupando Buscador_Empleabilidad_e_Ingresos_2024_2025_SIES.xlsx
         // y Buscador_Estadisticas_por_carrera_2024_2025_SIES.xlsx 
         // tiene muchos mejores datos
@@ -46,7 +44,6 @@ public class UploadDataController : ControllerBase
     [HttpPost("institutions/campus")]
     public async Task PostInstitutionsCampus(IFormFile file)
     {
-        // OK
         using var stream = file.OpenReadStream();
         await _uploadDataDomain.UploadInstitutionCampus(stream);
     }

@@ -29,7 +29,8 @@ public static class Extensions
         return new Models.Career
         {
             Name = career.Name,
-            KnowledgeArea = career.KnowledgeArea.Name
+            KnowledgeArea = career.KnowledgeArea.Name,
+            Id = career.Id
         };
     }
 
@@ -51,8 +52,10 @@ public static class Extensions
             EmployabilityFirstYearDiff = lastStats.EmployabilityFirstYear - firstStats.EmployabilityFirstYear,
             EmployabilitySecondYear = lastStats.EmployabilitySecondYear,
             EmployabilitySecondYearDiff = lastStats.EmployabilitySecondYear - firstStats.EmployabilitySecondYear,
-            // AvarageSalary = lastStats.AvarageSalary,
-            // AvarageSalaryDiff = lastStats.AvarageSalary - firstStats.AvarageSalary
+            InstitutionName = entity.Institution.Name,
+            CareerId = entity.CarrerId,
+            InstitutionId = entity.InstitutionId,
+            Id = entity.Id
         };
     }
 

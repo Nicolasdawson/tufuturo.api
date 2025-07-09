@@ -2,21 +2,22 @@
 using API.Implementations.Repository.Entities;
 using API.Models;
 using Ardalis.Result;
+using Entities = API.Implementations.Repository.Entities;
 
 namespace API.Implementations;
 
 public class StudentDomain : IStudentDomain
 {
-    private readonly IStudentRepository _studentRepository;
+    private readonly IRepository<Entities.Student> _studentRepository;
 
-    public StudentDomain(IStudentRepository studentRepository)
+    public StudentDomain(IRepository<Entities.Student> studentRepository)
     {
         _studentRepository = studentRepository;
     }
 
     public async Task<Result<Student>> CreateStudent(StudentRequest request)
     {
-        var emailAlreadyExists = await _studentRepository.CheckEmail(request.Email);
+        var emailAlreadyExists = await _studentRepository.AnyAsync(x => x.Email == request.Email);
 
         if (emailAlreadyExists)
             return Result<Student>.Conflict("Email already exists");
@@ -27,6 +28,4 @@ public class StudentDomain : IStudentDomain
             Email = request.Email
         }));
     }
-    
-    // TODO: endpoint para cuando elijen una carrera
 }

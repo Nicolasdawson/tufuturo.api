@@ -8,9 +8,6 @@ namespace API.Implementations;
 public class InstitutionDomain : IInstitutionDomain
 {
     private readonly IInstitutionRepository _institutionRepository;
-    
-    //TODO: puedo cachear esto? 
-
     public InstitutionDomain(IInstitutionRepository institutionRepository)
     {
         _institutionRepository = institutionRepository;

@@ -20,6 +20,10 @@ public class Repository<T> : IRepository<T> where T : GenericEntity
                                        && x.Id == id)
             .FirstOrDefaultAsync();
     }
+    public async Task<bool> AnyAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _context.Set<T>().AnyAsync(predicate);
+    }
     
     public IQueryable<T> Get(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
     {

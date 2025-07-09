@@ -21,7 +21,7 @@ public class CareerDomain : ICareerDomain
         _careerCampusRepository = careerCampusRepository;
     }
 
-    public async Task<PagedResult<List<Models.Career>>> GetCareers(Models.CareerParams queryParams)
+    public async Task<PagedResult<List<Models.Career>>> GetParentCareers(Models.CareerParams queryParams)
     {
         var careers = _careerRepository.Get(x => !x.IsDeleted, "KnowledgeArea"
             // "Institution,KnowledgeArea,CareerInstitutions, CareerInstitutions.CareerCampuses,CareerInstitutions.CareerCampuses.InstitutionCampus" // necesito esto? 
@@ -63,6 +63,7 @@ public class CareerDomain : ICareerDomain
         }
 
         var careersResult = careers
+            .OrderByDescending(x => x.Id)
             .Skip(queryParams.Skip)
             .Take(queryParams.Take)
             .Select(x => x.ToModel())
@@ -79,7 +80,7 @@ public class CareerDomain : ICareerDomain
 
     public async Task<Result<List<Models.CareerInstitution>>> GetCareersInstitution(int institutionId)
     {
-        var careers = _careerInstitutionRepository.GetCareersInstitution(institutionId);
+        var careers = _careerInstitutionRepository.GetByInstitution(institutionId);
 
         if (!careers.IsAny())
             return Result.NotFound();
@@ -92,6 +93,18 @@ public class CareerDomain : ICareerDomain
     public async Task<Result<List<Models.CareerCampus>>> GetCareersCampus(int institutionId, int campusId)
     {
         var careers = await _careerCampusRepository.GetCareerCampus(institutionId, campusId);
+
+        if (!careers.IsAny())
+            return Result.NotFound();
+        
+        var models = careers.Select(x => x.ToModel()).ToList();
+
+        return Result.Success(models);
+    }
+    
+    public Result<List<Models.CareerInstitution>> GetCareerByGenericCareer(int careerId)
+    {
+        var careers = _careerInstitutionRepository.GetByCareer(careerId);
 
         if (!careers.IsAny())
             return Result.NotFound();

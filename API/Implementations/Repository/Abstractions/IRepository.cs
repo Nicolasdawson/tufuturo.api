@@ -12,4 +12,5 @@ public interface IRepository<T> where T : GenericEntity
     Task DeleteAsync(T entity);
     IQueryable<T> Get(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
     Task AddRangeAsync(IEnumerable<T> entities);
+    Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 }

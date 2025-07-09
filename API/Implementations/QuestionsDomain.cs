@@ -2,17 +2,18 @@
 using API.Models;
 using API.Utils;
 using Microsoft.Extensions.Caching.Memory;
+using Entities = API.Implementations.Repository.Entities;
 
 namespace API.Implementations;
 
 public class QuestionsDomain : IQuestionsDomain
 {
-    private readonly IQuestionRepository _questionRepository;
+    private readonly IRepository<Entities.Question> _questionRepository;
     private readonly IMemoryCache _memoryCache;
     private readonly string _cacheKey = "QuestionsEs";
     private readonly MemoryCacheEntryOptions _cacheOptions;
 
-    public QuestionsDomain(IQuestionRepository questionRepository, IMemoryCache memoryCache)
+    public QuestionsDomain(IRepository<Entities.Question> questionRepository, IMemoryCache memoryCache)
     {
         _questionRepository = questionRepository;
         _memoryCache = memoryCache;
@@ -29,7 +30,7 @@ public class QuestionsDomain : IQuestionsDomain
             return questions!;
         }
         
-        var questionsEntities = await _questionRepository.GetAllQuestions();
+        var questionsEntities = await _questionRepository.GetAllAsync();
 
         questions = questionsEntities.Select(x => x.ToModel()).ToList();
         

@@ -13,10 +13,22 @@ public class CareerInstitutionRepository : Repository<Entities.CareerInstitution
         _context = context;
     }
 
-    public List<CareerInstitution> GetCareersInstitution(int institutionId)
+    public List<CareerInstitution> GetByInstitution(int institutionId)
     {
         return _context.CareerInstitutions.Where(x => !x.IsDeleted 
                                                         && x.InstitutionId == institutionId)
+            .Include(x => x.Institution)
+            .Include(x => x.CareerInstitutionStats
+                .OrderBy(d => d.YearOfData)
+                .Take(2))
+            .ToList();
+    }
+    
+    public List<CareerInstitution> GetByCareer(int careerId)
+    {
+        return _context.CareerInstitutions.Where(x => !x.IsDeleted 
+                                                      && x.CarrerId == careerId)
+            .Include(x => x.Institution)
             .Include(x => x.CareerInstitutionStats
                 .OrderBy(d => d.YearOfData)
                 .Take(2))

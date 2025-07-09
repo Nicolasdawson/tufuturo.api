@@ -4,5 +4,7 @@ namespace API.Abstractions;
 
 public interface ICareerInstitutionRepository : IRepository<CareerInstitution>
 {
-    List<CareerInstitution> GetCareersInstitution(int institutionId);
+    List<CareerInstitution> GetByInstitution(int institutionId);
+
+    List<CareerInstitution> GetByCareer(int careerId);
 }

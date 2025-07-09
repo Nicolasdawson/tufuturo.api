@@ -7,10 +7,10 @@ namespace API.Implementations;
 
 public class AssessmentDomain : IAssessmentDomain
 {
-    private readonly IStudentRepository _studentRepository;
-    private readonly IQuestionRepository _questionRepository;
+    private readonly IRepository<Entities.Student> _studentRepository;
+    private readonly IRepository<Entities.Question> _questionRepository;
 
-    public AssessmentDomain(IStudentRepository studentRepository, IQuestionRepository questionRepository)
+    public AssessmentDomain(IRepository<Entities.Student> studentRepository, IRepository<Entities.Question> questionRepository)
     {
         _studentRepository = studentRepository;
         _questionRepository = questionRepository;
@@ -23,7 +23,7 @@ public class AssessmentDomain : IAssessmentDomain
         if (student is null)
             return Result.NotFound("Student not found");
 
-        var questions = await _questionRepository.GetAllQuestions();
+        var questions = await _questionRepository.GetAllAsync();
         
         //var scoreRiasec = GetRiasecScores(request.AnswersRiasec, questions);
         

@@ -1,14 +1,13 @@
+using System.Net;
 using API.Implementations;
 using API.Models;
 using Ardalis.Result;
-using Ardalis.Result.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
 [ApiController]
 [Route("api/careers")]
-[TranslateResultToActionResult]
 public class CareersController : ControllerBase
 {
     private readonly ICareerDomain _careerDomain;
@@ -19,9 +18,17 @@ public class CareersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<PagedResult<List<Models.Career>>> GetCareers([FromQuery] CareerParams queryparams)
+    [ProducesResponseType(typeof(PagedResult<List<Models.Career>>), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> GetParentCareers([FromQuery] CareerParams queryparams)
     {
-        return await _careerDomain.GetCareers(queryparams);
+        var result = await _careerDomain.GetParentCareers(queryparams);
+        return Ok(result);
+    }
+    
+    [HttpGet("{careerId}")]
+    public Result<List<Models.CareerInstitution>> GetCareer(int careerId)
+    {
+        return _careerDomain.GetCareerByGenericCareer(careerId);
     }
 
     [HttpGet("institution/{institutionId}")]

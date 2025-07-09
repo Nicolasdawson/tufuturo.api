@@ -21,10 +21,12 @@ public class CareerInstitution
     public decimal EmployabilitySecondYear { get; set; }
     
     public decimal EmployabilitySecondYearDiff { get; set; }
-
-    public decimal AvarageSalary { get; set; }
-    
-    public decimal AvarageSalaryDiff { get; set; }
-    
     public required string Name { get; set; }
+    public required string InstitutionName { get; set; }
+
+    public int Id { get; set; }
+    
+    public int CareerId { get; set; }
+    
+    public int InstitutionId { get; set; }
 }
