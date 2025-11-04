@@ -1,4 +1,5 @@
 using System.Data;
+using System.Dynamic;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,6 +8,7 @@ using API.Implementations.Repository.Entities;
 using Ardalis.Result;
 using ExcelDataReader;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace API.Implementations;
@@ -23,6 +25,7 @@ public class UploadDataDomain : IUploadDataDomain
     private readonly ICareerCampusRepository _careerCampusRepository;
     private readonly IRepository<Region> _regionRepository;
     private readonly IRepository<Schedule> _scheduleRepository;
+    private readonly ILogger<UploadDataDomain> _logger;
     private const int YearOfData = 2025;
 
     public UploadDataDomain(
@@ -35,7 +38,7 @@ public class UploadDataDomain : IUploadDataDomain
         IRepository<InstitutionCampus> institutionCampusRepository,
         ICareerCampusRepository careerCampusRepository,
         IRepository<Region> regionRepository,
-        IRepository<Schedule> scheduleRepository)
+        IRepository<Schedule> scheduleRepository, ILogger<UploadDataDomain> logger)
     {
         _institutionRepository = institutionRepository;
         _institutionTypeRepository = institutionTypeRepository;
@@ -47,65 +50,80 @@ public class UploadDataDomain : IUploadDataDomain
         _careerCampusRepository = careerCampusRepository;
         _regionRepository = regionRepository;
         _scheduleRepository = scheduleRepository;
+        _logger = logger;
 
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
     public async Task<Result> UploadInstitutions(Stream file)
     {
+        _logger.LogInformation("Uploading institutions");
         var acreditationTypes = await _acreditationTypeRepository.GetAllAsync();
 
         var institutionTypes = await _institutionTypeRepository.GetAllAsync();
 
         var institutions = ParseExcelToInstitutions(file, institutionTypes.ToList(), acreditationTypes.ToList());
 
+        _logger.LogInformation("Found {Count} institutions to upload", institutions.Count);
+
         await _institutionRepository.AddRangeAsync(institutions);
 
+        _logger.LogInformation("Institutions uploaded successfully");
         return Result.Success();
     }
 
     public async Task<Result> UploadGenericsCareers(Stream file)
     {
+        _logger.LogInformation("Uploading generic careers");
         var knowledgeAreas = await _knowledgeAreaRepository.GetAllAsync();
 
         var careers = ParseExcelToGenericCareer(file, knowledgeAreas.ToList());
 
+        _logger.LogInformation("Found {Count} generic careers to upload", careers.Count);
+
         await _careerRepository.AddRangeAsync(careers);
+
+        _logger.LogInformation("Generic careers uploaded successfully");
         return Result.Success();
     }
 
     public async Task<Result> UploadCareersInstitution(Stream file)
     {
+        _logger.LogInformation("Uploading careers institution");
         var careers = await _careerRepository.GetAllAsync();
 
         var institutions = await _institutionRepository.GetAllAsync();
 
         var careersInstitutions = ParseExcelToCareerInstitution(file, institutions.ToList(), careers.ToList());
 
+        _logger.LogInformation("Found {Count} careers institution to upload", careersInstitutions.Count);
+
         await _careerInstitutionRepository.AddRangeAsync(careersInstitutions);
 
+        _logger.LogInformation("Careers institution uploaded successfully");
         return Result.Success();
     }
 
     public async Task<Result> UploadInstitutionCampus(Stream file)
     {
-        // Buscardor_de_carreras
-
+        _logger.LogInformation("Uploading institution campus");
         var institutions = await _institutionRepository.GetAllAsync();
 
         var regions = await _regionRepository.GetAllAsync();
 
         var institutionsCampus = ParseExcelToInstitutionCampus(file, regions.ToList(), institutions.ToList());
 
+        _logger.LogInformation("Found {Count} institution campus to upload", institutionsCampus.Count);
+
         await _institutionCampusRepository.AddRangeAsync(institutionsCampus);
 
+        _logger.LogInformation("Institution campus uploaded successfully");
         return Result.Success();
     }
 
     public async Task<Result> UploadCareersCampus(Stream file)
     {
-        // Buscardor_de_carreras
-
+        _logger.LogInformation("Uploading careers campus");
         var careerInstitutions = await _careerInstitutionRepository.GetAllAsync();
 
         var campuses = await _institutionCampusRepository.GetAllAsync();
@@ -115,14 +133,18 @@ public class UploadDataDomain : IUploadDataDomain
         var careersCampus =
             ParseExcelToCareersCampus(file, careerInstitutions.ToList(), schedules.ToList(), campuses.ToList());
 
+        _logger.LogInformation("Found {Count} careers campus to upload", careersCampus.Count);
+
         await _careerCampusRepository.AddRangeAsync(careersCampus);
 
+        _logger.LogInformation("Careers campus uploaded successfully");
         return Result.Success();
     }
 
     private List<Institution> ParseExcelToInstitutions(Stream file, List<InstitutionType> institutionTypes,
         List<AcreditationType> acreditationTypes)
     {
+        _logger.LogInformation("Parsing excel to institutions");
         List<Institution> result = new List<Institution>();
 
         using var reader = ExcelReaderFactory.CreateReader(file, new ExcelReaderConfiguration()
@@ -139,6 +161,7 @@ public class UploadDataDomain : IUploadDataDomain
         });
 
         DataTable table = dataSet.Tables[0];
+        _logger.LogInformation("Found {Count} rows in the excel file", table.Rows.Count);
 
         foreach (DataRow row in table.Rows)
         {
@@ -165,13 +188,20 @@ public class UploadDataDomain : IUploadDataDomain
                     .FirstOrDefault(x => x.Name == institutionType)?.Id;
 
                 if (institutionTypeId is null)
+                {
+                    _logger.LogWarning("Institution type not found for {InstitutionType}", institutionType);
                     continue;
+                }
 
                 institution.InstitutionTypeId = institutionTypeId.Value;
             }
 
             if (institution.InstitutionDetails.Any(x => x.YearOfData == YearOfData))
+            {
+                _logger.LogWarning("Institution detail already exists for {InstitutionName} and year {YearOfData}",
+                    institution.Name, YearOfData);
                 continue;
+            }
 
             var instituionDetail = new InstitutionDetails();
 
@@ -179,7 +209,11 @@ public class UploadDataDomain : IUploadDataDomain
                 x.Name == row["Acreditación (31 de octubre de 2024)"]?.ToString());
 
             if (acreditationType is null)
+            {
+                _logger.LogWarning("Acreditation type not found for {AcreditationType}",
+                    row["Acreditación (31 de octubre de 2024)"]?.ToString());
                 continue;
+            }
 
             instituionDetail.AcreditationTypeId = acreditationType.Id;
 
@@ -246,6 +280,7 @@ public class UploadDataDomain : IUploadDataDomain
 
     private List<Career> ParseExcelToGenericCareer(Stream file, List<KnowledgeArea> knowledgeAreas)
     {
+        _logger.LogInformation("Parsing excel to generic careers");
         List<Career> result = new List<Career>();
 
         using var reader = ExcelReaderFactory.CreateReader(file);
@@ -258,11 +293,14 @@ public class UploadDataDomain : IUploadDataDomain
         });
 
         DataTable table = dataSet.Tables[0];
+        _logger.LogInformation("Found {Count} rows in the excel file", table.Rows.Count);
 
         var distinctRows = table.AsEnumerable()
             .GroupBy(row => row["Área Carrera Genérica"]?.ToString())
             .Select(group => group.First())
             .ToList();
+
+        _logger.LogInformation("Found {Count} distinct generic careers", distinctRows.Count);
 
         foreach (DataRow row in distinctRows)
         {
@@ -286,7 +324,10 @@ public class UploadDataDomain : IUploadDataDomain
                     .FirstOrDefault(x => x.Name == knowlageArea)?.Id;
 
                 if (knowlageAreaId is null)
+                {
+                    _logger.LogWarning("Knowledge area not found for {KnowledgeArea}", knowlageArea);
                     continue;
+                }
 
                 career.KnowledgeAreaId = knowlageAreaId.Value;
             }
@@ -301,8 +342,8 @@ public class UploadDataDomain : IUploadDataDomain
     private List<CareerInstitution> ParseExcelToCareerInstitution(Stream file, List<Institution> institutions,
         List<Career> careers)
     {
+        _logger.LogInformation("Parsing excel to career institution");
         List<CareerInstitution> result = new List<CareerInstitution>();
-
 
         using var reader = ExcelReaderFactory.CreateReader(file);
         var dataSet = reader.AsDataSet(new ExcelDataSetConfiguration()
@@ -314,16 +355,14 @@ public class UploadDataDomain : IUploadDataDomain
         });
 
         DataTable table = dataSet.Tables[0];
+        _logger.LogInformation("Found {Count} rows in the excel file", table.Rows.Count);
 
         foreach (DataRow row in table.Rows)
         {
-            var genericCareerName = row["Nombre carrera genérica"]?.ToString();
-            var institutionCareerName = row["Nombre carrera (del título)"]?.ToString();
-            var institutionCode = row["Código"]?.ToString();
-
-            // var careerInstitution = _careerInstitutionRepository.Get(x => !x.IsDeleted
-            //                                                               && x.Name == instituionName)
-            //     .FirstOrDefault();
+            dynamic rowData = new ExpandoObject();
+            rowData.GenericCareerName = row["Nombre carrera genérica"]?.ToString();
+            rowData.InstitutionCareerName = row["Nombre carrera (del título)"]?.ToString();
+            rowData.InstitutionCode = row["Código"]?.ToString();
 
             CareerInstitution? careerInstitution = null;
 
@@ -331,24 +370,26 @@ public class UploadDataDomain : IUploadDataDomain
             {
                 careerInstitution = new CareerInstitution()
                 {
-                    Name = institutionCareerName,
+                    Name = rowData.InstitutionCareerName
                 };
 
                 var genericCareerId = careers
-                    .FirstOrDefault(x => x.Name == genericCareerName)?.Id;
+                    .FirstOrDefault(x => x.Name == rowData.GenericCareerName)?.Id;
 
                 if (genericCareerId is null)
                 {
+                    _logger.LogWarning("Generic career not found for {GenericCareerName}", row["Nombre carrera genérica"]?.ToString());
                     continue;
                 }
 
                 careerInstitution.CarrerId = genericCareerId.Value;
 
                 var institutionId = institutions
-                    .FirstOrDefault(x => x.Code == institutionCode)?.Id;
+                    .FirstOrDefault(x => x.Code == rowData.InstitutionCode)?.Id;
 
                 if (institutionId is null)
                 {
+                    _logger.LogWarning("Institution not found for {InstitutionCode}", row["Código"]?.ToString());
                     continue;
                 }
 
@@ -356,7 +397,12 @@ public class UploadDataDomain : IUploadDataDomain
             }
 
             if (careerInstitution.CareerInstitutionStats.Any(x => x.YearOfData == YearOfData))
+            {
+                _logger.LogWarning(
+                    "Career institution stats already exists for {CareerInstitutionName} and year {YearOfData}",
+                    careerInstitution.Name, YearOfData);
                 continue;
+            }
 
             var careerInstitutionStats = new CareerInstitutionStats();
 
@@ -423,13 +469,13 @@ public class UploadDataDomain : IUploadDataDomain
             result.Add(careerInstitution);
         }
 
-
         return result;
     }
 
     private List<InstitutionCampus> ParseExcelToInstitutionCampus(Stream file, List<Region> regions,
         List<Institution> institutions)
     {
+        _logger.LogInformation("Parsing excel to institution campus");
         List<InstitutionCampus> result = new List<InstitutionCampus>();
 
         using var reader = ExcelReaderFactory.CreateReader(file);
@@ -442,11 +488,14 @@ public class UploadDataDomain : IUploadDataDomain
         });
 
         DataTable table = dataSet.Tables[0];
+        _logger.LogInformation("Found {Count} rows in the excel file", table.Rows.Count);
 
         var distinctRows = table.AsEnumerable()
             .GroupBy(row => row.Field<string>("Sede"))
             .Select(group => group.First())
             .ToList();
+
+        _logger.LogInformation("Found {Count} distinct institution campus", distinctRows.Count);
 
         foreach (DataRow row in distinctRows)
         {
@@ -457,7 +506,10 @@ public class UploadDataDomain : IUploadDataDomain
             var institutionId = institutions.FirstOrDefault(x => x.Code == institutionCode)?.Id;
 
             if (institutionId is null)
+            {
+                _logger.LogWarning("Institution not found for {InstitutionCode}", institutionCode);
                 continue;
+            }
 
             // var campus = _institutionCampusRepository.Get(x => !x.IsDeleted && x.Name == campusName)
             //     .FirstOrDefault();
@@ -469,7 +521,10 @@ public class UploadDataDomain : IUploadDataDomain
                 var regionId = regions.FirstOrDefault(x => x.Name == row["Región"]?.ToString() && !x.IsDeleted)?.Id;
 
                 if (regionId is null)
+                {
+                    _logger.LogWarning("Region not found for {Region}", row["Región"]?.ToString());
                     continue;
+                }
 
                 campus = new InstitutionCampus()
                 {
@@ -490,6 +545,7 @@ public class UploadDataDomain : IUploadDataDomain
         List<Schedule> schedules,
         List<InstitutionCampus> institutionCampus)
     {
+        _logger.LogInformation("Parsing excel to careers campus");
         List<CareerCampus> result = new List<CareerCampus>();
 
         using var reader = ExcelReaderFactory.CreateReader(file);
@@ -502,6 +558,7 @@ public class UploadDataDomain : IUploadDataDomain
         });
 
         DataTable table = dataSet.Tables[0];
+        _logger.LogInformation("Found {Count} rows in the excel file", table.Rows.Count);
 
         foreach (DataRow row in table.Rows)
         {
@@ -510,7 +567,10 @@ public class UploadDataDomain : IUploadDataDomain
             var campusCareerName = row["Nombre carrera"]?.ToString();
 
             if (string.IsNullOrWhiteSpace(campusName))
+            {
+                _logger.LogWarning("Campus name is empty");
                 continue;
+            }
 
             var scheduleName = row["Jornada"]?.ToString();
 
@@ -519,19 +579,30 @@ public class UploadDataDomain : IUploadDataDomain
             var scheduleId = schedules.FirstOrDefault(x => x.Name == scheduleName)?.Id;
 
             if (scheduleId is null)
+            {
+                _logger.LogWarning("Schedule not found for {ScheduleName}", scheduleName);
                 continue;
+            }
 
             var campusInstitution = institutionCampus.FirstOrDefault(x => x.Name == campusName);
 
             if (campusInstitution is null)
+            {
+                _logger.LogWarning("Campus institution not found for {CampusName}", campusName);
                 continue;
+            }
 
             var careerInstitutionId = careerInstitutions
                 .FirstOrDefault(x =>
                     x.Name == genericCareerName && x.InstitutionId == campusInstitution.InstitutionId)?.Id;
 
             if (careerInstitutionId is null)
+            {
+                _logger.LogWarning(
+                    "Career institution not found for {GenericCareerName} and institution {InstitutionId}",
+                    genericCareerName, campusInstitution.InstitutionId);
                 continue;
+            }
 
             // var campusCareer = _careerCampusRepository.Get(x => !x.IsDeleted
             //                                                     && x.Name == campusCareerName

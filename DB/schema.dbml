@@ -1,0 +1,175 @@
+Project Universidad {
+  database_type: 'PostgreSQL'
+}
+
+/* Table: question */
+Table question {
+  id int [pk, increment]
+  text varchar(255) [not null]
+  category varchar(255) [not null]
+  createdAt timestamp [not null]
+  isDeleted boolean [not null]
+}
+
+/* Table: student */
+Table student {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  email varchar(255) [not null]
+  answers varchar(500) [not null]
+}
+
+/* Table: email */
+Table email {
+  id int [pk, increment]
+  isDeleted boolean [not null]
+  type varchar(255) [not null]
+  studentId int [ref: > student.id]
+  deliveryDate date [not null]
+  isDelivered boolean [not null]
+}
+
+/* Table: institutionType */
+Table institutionType {
+  id int [pk, increment]
+  name varchar(250) [not null]
+  isDeleted boolean [not null]
+}
+
+/* Table: acreditationType */
+Table acreditationType {
+  id int [pk, increment]
+  name varchar(250) [not null]
+  isDeleted boolean [not null]
+}
+
+/* Table: institution */
+Table institution {
+  id int [pk, increment]
+  isDeleted boolean [not null]
+  code varchar(250)
+  name varchar(250) [not null]
+  institutionTypeId int [ref: > institutionType.id]
+}
+
+/* Table: institutionDetails */
+Table institutionDetails {
+  id int [pk, increment]
+  isDeleted boolean [not null]
+  yearOfData int [not null]
+  institutionId int [ref: > institution.id]
+  acreditationTypeId int [ref: > acreditationType.id]
+  acreditation int
+  acreditationExpireAt date
+  builded decimal(28,6)
+  buildedLibrary decimal(28,6)
+  buildedLabs decimal(28,6)
+  labs int
+  computersPerStudent decimal(30,15)
+  greenArea decimal(28,6)
+}
+
+/* Table: knowledgeArea */
+Table knowledgeArea {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  isDeleted boolean [not null]
+}
+
+/* Table: career */
+Table career {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  isDeleted boolean [not null]
+  knowledgeAreaId int [ref: > knowledgeArea.id]
+}
+
+/* Table: schedule */
+Table schedule {
+  id int [pk, increment]
+  name varchar(100) [not null]
+  isDeleted boolean [not null]
+}
+
+/* Table: region */
+Table region {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  isDeleted boolean [not null]
+}
+
+/* Table: institutionCampus */
+Table institutionCampus {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  isDeleted boolean [not null]
+  regionId int [ref: > region.id]
+  institutionId int [ref: > institution.id]
+}
+
+/* Table: careerInstitution */
+Table careerInstitution {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  isDeleted boolean [not null]
+  careerId int [ref: > career.id]
+  institutionId int [ref: > institution.id]
+}
+
+/* Table: careerCampus */
+Table careerCampus {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  isDeleted boolean [not null]
+  careerInstitutionId int [ref: > careerInstitution.id]
+  scheduleId int [ref: > schedule.id]
+  institutionCampusId int [ref: > institutionCampus.id]
+}
+
+/* Table: careerCampusStats */
+Table careerCampusStats {
+  id int [pk, increment]
+  isDeleted boolean [not null]
+  careerCampusId int [ref: > careerCampus.id]
+  anualTuition int
+  graduationFee int
+  duration int
+  maleEnrollment int
+  femaleEnrollment int
+  totalEnrollment int
+  publicSchoolRate decimal(28,6)
+  subsidizedSchoolRate decimal(28,6)
+  privateSchoolRate decimal(28,6)
+  femaleDegrees int
+  maleDegrees int
+  totalDegrees int
+  firstYearEntryFrom decimal(28,6)
+  firstYearEntryTo decimal(28,6)
+  avargePaes decimal(28,6)
+  avarageEnrollment decimal(28,6)
+  vacanciesFirstSemester int
+  nem int
+  ranking int
+  paesLanguaje int
+  paesMaths int
+  paesMaths2 int
+  paesHistory int
+  paesSciences int
+  others int
+  yearOfData int [not null]
+}
+
+/* Table: careerInstitutionStats */
+Table careerInstitutionStats {
+  id int [pk, increment]
+  isDeleted boolean [not null]
+  careerInstitutionId int [ref: > careerInstitution.id]
+  studyContinuity decimal(28,6)
+  retentionFirstYear decimal(28,6)
+  realDuration decimal(28,6)
+  employabilityFirstYear decimal(28,6)
+  employabilitySecondYear decimal(28,6)
+  avarageSalaryfrom int
+  avarageSalaryTo int
+  yearOfData int [not null]
+}

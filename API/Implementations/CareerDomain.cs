@@ -1,5 +1,6 @@
 using API.Abstractions;
 using API.Utils;
+using Microsoft.Extensions.Logging;
 using Models = API.Models;
 using Entities = API.Implementations.Repository.Entities;
 using Ardalis.Result;
@@ -14,7 +15,7 @@ public class CareerDomain : ICareerDomain
 
     public CareerDomain(IRepository<Entities.Career> careerRepository,
         ICareerInstitutionRepository careerInstitutionRepository,
-        ICareerCampusRepository careerCampusRepository)
+        ICareerCampusRepository careerCampusRepository, ILogger<CareerDomain> logger)
     {
         _careerRepository = careerRepository;
         _careerInstitutionRepository = careerInstitutionRepository;
@@ -83,10 +84,11 @@ public class CareerDomain : ICareerDomain
         var careers = _careerInstitutionRepository.GetByInstitution(institutionId);
 
         if (!careers.IsAny())
+        {
             return Result.NotFound();
+        }
 
         var models = careers.Select(x => x.ToModel()).ToList();
-
         return Result.Success(models);
     }
 
@@ -95,10 +97,11 @@ public class CareerDomain : ICareerDomain
         var careers = await _careerCampusRepository.GetCareerCampus(institutionId, campusId);
 
         if (!careers.IsAny())
+        {
             return Result.NotFound();
+        }
         
         var models = careers.Select(x => x.ToModel()).ToList();
-
         return Result.Success(models);
     }
     
@@ -107,10 +110,11 @@ public class CareerDomain : ICareerDomain
         var careers = _careerInstitutionRepository.GetByCareer(careerId);
 
         if (!careers.IsAny())
+        {
             return Result.NotFound();
+        }
         
         var models = careers.Select(x => x.ToModel()).ToList();
-
         return Result.Success(models);
     }
 }

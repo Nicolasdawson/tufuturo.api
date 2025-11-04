@@ -3,7 +3,7 @@ using API.Implementations.Repository.Entities;
 
 namespace API.Abstractions;
 
-public interface IRepository<T> where T : GenericEntity
+public interface IRepository<T> : IDisposable where T : GenericEntity
 {
     Task<T?> GetByIdAsync(int id);
     Task<IEnumerable<T>> GetAllAsync();

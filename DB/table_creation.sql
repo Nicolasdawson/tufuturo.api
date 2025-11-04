@@ -1,10 +1,10 @@
 CREATE TABLE question (
-                          id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                          text VARCHAR(255) NOT NULL,
-                          category VARCHAR(255) NOT NULL,
-                          createdAt DATETIME2 NOT NULL,
-                          isDeleted BOOLEAN NOT NULL
-);
+                            id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                            text VARCHAR(255) NOT NULL,
+                            category VARCHAR(255) NOT NULL,
+                            createdAt DATETIME2 NOT NULL,
+                            isDeleted BOOLEAN NOT NULL
+  );
 
 INSERT INTO question ( text, category, createdat, isdeleted)
 VALUES

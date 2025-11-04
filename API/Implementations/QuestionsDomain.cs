@@ -2,6 +2,7 @@
 using API.Models;
 using API.Utils;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 using Entities = API.Implementations.Repository.Entities;
 
 namespace API.Implementations;
