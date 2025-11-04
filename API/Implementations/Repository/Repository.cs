@@ -8,6 +8,7 @@ namespace API.Implementations.Repository;
 public class Repository<T> : IRepository<T> where T : GenericEntity
 {
     private readonly ApplicationDbContext _context;
+    private bool _disposed = false;
 
     public Repository(ApplicationDbContext context)
     {
@@ -75,5 +76,23 @@ public class Repository<T> : IRepository<T> where T : GenericEntity
     {
         _context.Set<T>().Remove(entity);
         await _context.SaveChangesAsync();
+    }
+    
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+            _disposed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

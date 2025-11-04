@@ -2,6 +2,7 @@ using API.Abstractions;
 using API.Implementations.Repository;
 using API.Implementations.Repository.Entities;
 using Ardalis.Result;
+using Microsoft.Extensions.Logging;
 
 namespace API.Implementations;
 
@@ -18,7 +19,9 @@ public class InstitutionDomain : IInstitutionDomain
         var institution = await _institutionRepository.InstitutionDetail(institutionId);
 
         if (institution is null)
+        {
             return Result<Institution>.NotFound("Institution not found");
+        }
         
         return Result<Institution>.Success(institution);
     }
