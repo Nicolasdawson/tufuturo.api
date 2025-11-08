@@ -20,12 +20,10 @@ public class StudentDomain : IStudentDomain
 
     public async Task<Result<Student>> CreateStudent(StudentRequest request)
     {
-        _logger.LogInformation("Creating student with email {Email}", request.Email);
         var emailAlreadyExists = await _studentRepository.AnyAsync(x => x.Email == request.Email);
 
         if (emailAlreadyExists)
         {
-            _logger.LogWarning("Email {Email} already exists", request.Email);
             return Result<Student>.Conflict("Email already exists");
         }
         
@@ -35,7 +33,6 @@ public class StudentDomain : IStudentDomain
             Email = request.Email
         });
         
-        _logger.LogInformation("Student {StudentId} created successfully", student.Id);
         return Result<Student>.Created(student);
     }
 }

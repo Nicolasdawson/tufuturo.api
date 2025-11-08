@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Models = API.Models;
 using Entities = API.Implementations.Repository.Entities;
 using Ardalis.Result;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace API.Implementations;
 
@@ -12,21 +13,38 @@ public class CareerDomain : ICareerDomain
     private readonly IRepository<Entities.Career> _careerRepository;
     private readonly ICareerInstitutionRepository _careerInstitutionRepository;
     private readonly ICareerCampusRepository _careerCampusRepository;
+    private readonly IMemoryCache _memoryCache;
+    private readonly MemoryCacheEntryOptions _memoryCacheEntryOptions;
 
     public CareerDomain(IRepository<Entities.Career> careerRepository,
         ICareerInstitutionRepository careerInstitutionRepository,
-        ICareerCampusRepository careerCampusRepository, ILogger<CareerDomain> logger)
+        ICareerCampusRepository careerCampusRepository,
+        ILogger<CareerDomain> logger,
+        IMemoryCache memoryCache)
     {
         _careerRepository = careerRepository;
         _careerInstitutionRepository = careerInstitutionRepository;
         _careerCampusRepository = careerCampusRepository;
+        
+        _memoryCache = memoryCache;
+        _memoryCacheEntryOptions = new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromDays(1))
+            .SetPriority(CacheItemPriority.NeverRemove);
     }
 
     public async Task<PagedResult<List<Models.Career>>> GetParentCareers(Models.CareerParams queryParams)
     {
-        var careers = _careerRepository.Get(x => !x.IsDeleted, "KnowledgeArea"
-            // "Institution,KnowledgeArea,CareerInstitutions, CareerInstitutions.CareerCampuses,CareerInstitutions.CareerCampuses.InstitutionCampus" // necesito esto? 
-            );
+        var cacheKey = $"ParentCareers_{queryParams.InstitutionTypeId}_{queryParams.AcreditationTypeId}_" +
+                       $"{queryParams.InstitutionId}_{queryParams.KnowledgeAreaId}_" +
+                       $"{queryParams.ScheduleId}_{queryParams.RegionId}_" +
+                       $"{queryParams.Skip}_{queryParams.Take}";
+        
+        if (_memoryCache.TryGetValue(cacheKey, out PagedResult<List<Models.Career>>? careersCache))
+        {
+            return careersCache!;
+        }
+        
+        var careers = _careerRepository.Get(x => !x.IsDeleted, "KnowledgeArea");
         
         var count = careers.Count();
 
@@ -76,7 +94,11 @@ public class CareerDomain : ICareerDomain
 
         PagedInfo pagedInfo = new PagedInfo(pageNumber, queryParams.Take, totalPages, count);
         
-        return Result.Success(careersResult).ToPagedResult(pagedInfo);
+        var result =  Result.Success(careersResult).ToPagedResult(pagedInfo);
+        
+        _memoryCache.Set(cacheKey, result, _memoryCacheEntryOptions);
+
+        return result;
     }
 
     public async Task<Result<List<Models.CareerInstitution>>> GetCareersInstitution(int institutionId)

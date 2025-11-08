@@ -378,7 +378,8 @@ public class UploadDataDomain : IUploadDataDomain
 
                 if (genericCareerId is null)
                 {
-                    _logger.LogWarning("Generic career not found for {GenericCareerName}", row["Nombre carrera genérica"]?.ToString());
+                    _logger.LogWarning("Generic career not found for {GenericCareerName}",
+                        row["Nombre carrera genérica"]?.ToString());
                     continue;
                 }
 
@@ -464,7 +465,7 @@ public class UploadDataDomain : IUploadDataDomain
 
             careerInstitutionStats.YearOfData = YearOfData;
 
-            careerInstitution.CareerInstitutionStats.Add(careerInstitutionStats);
+            // careerInstitution.CareerInstitutionStats.Add(careerInstitutionStats);
 
             result.Add(careerInstitution);
         }
@@ -714,7 +715,7 @@ public class UploadDataDomain : IUploadDataDomain
 
                 careerCampusStats.YearOfData = YearOfData;
 
-                campusCareer.CareerCampusStats.Add(careerCampusStats);
+                // campusCareer.CareerCampusStats.Add(careerCampusStats);
             }
 
             result.Add(campusCareer);

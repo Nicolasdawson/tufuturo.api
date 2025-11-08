@@ -7,7 +7,7 @@ public class CareerInstitution : GenericEntity
     [Column("name")]
     public required string Name { get; set; }
     
-    [Column("carrerId")]
+    [Column("careerId")]
     public int CarrerId { get; set; }
     
     [ForeignKey("CarrerId")]

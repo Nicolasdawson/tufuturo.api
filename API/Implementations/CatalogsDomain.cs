@@ -21,7 +21,8 @@ public class CatalogsDomain : ICatalogsDomain
         IRepository<AcreditationType> acreditationTypeRepository,
         IRepository<InstitutionType> institutionTypeRepository, 
         IRepository<KnowledgeArea> knowledgeAreaRepository,
-        IRepository<Schedule> scheduleRepository, IMemoryCache memoryCache)
+        IRepository<Schedule> scheduleRepository, 
+        IMemoryCache memoryCache)
     {
         _regionRepository = regionRepository;
         _acreditationTypeRepository = acreditationTypeRepository;
