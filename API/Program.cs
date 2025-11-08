@@ -13,6 +13,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMemoryCache();
 
+var corsPolicy = builder.Configuration.GetSection("CorsFrontEnd");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
             npgsqlOptions =>
@@ -46,7 +48,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://tufuturo-frontend-gxgsfcbcapfrashs.canadacentral-01.azurewebsites.net")
+        policy.WithOrigins(corsPolicy.Value)
             .AllowAnyMethod()
             .AllowAnyHeader();
     });
