@@ -6,11 +6,11 @@ namespace API.Implementations.Repository.Entities;
 public class CareerCampusStats : GenericEntity
 {
     [Required]
-    [Column("anualtuition")]
+    [Column("anualTuition")]
     public int AnualTuition { get; set; }
     
     [Required]
-    [Column("graduationfee")]
+    [Column("graduationFee")]
     public int GraduationFee { get; set; }
     
     [Required]
@@ -18,59 +18,59 @@ public class CareerCampusStats : GenericEntity
     public int Duration { get; set; }
     
     [Required]
-    [Column("maleenrollment")]
+    [Column("maleEnrollment")]
     public int MaleEnrollment { get; set; }
     
     [Required]
-    [Column("femaleenrollment")]
+    [Column("femaleEnrollment")]
     public int FemaleEnrollment { get; set; }
     
     [Required]
-    [Column("totalenrollment")]
+    [Column("totalEnrollment")]
     public int TotalEnrollment { get; set; }
     
     [Required]
-    [Column("publicschoolrate")]
+    [Column("publicSchoolRate")]
     public decimal PublicSchoolRate { get; set; }
     
     [Required]
-    [Column("subsidizedschoolrate")]
+    [Column("subsidizedSchoolRate")]
     public decimal SubsidizedSchoolRate { get; set; }
     
     [Required]
-    [Column("privateschoolrate")]
+    [Column("privateSchoolRate")]
     public decimal PrivateSchoolRate { get; set; }
     
     [Required]
-    [Column("femaledegrees")]
+    [Column("femaleDegrees")]
     public int FemaleDegrees { get; set; }
     
     [Required]
-    [Column("maledegrees")]
+    [Column("maleDegrees")]
     public int MaleDegrees { get; set; }
     
     [Required]
-    [Column("totaldegrees")]
+    [Column("totalDegrees")]
     public int TotalDegrees { get; set; }
     
     [Required]
-    [Column("firstyearentryfrom")]
+    [Column("firstYearEntryFrom")]
     public decimal FirstYearEntryFrom { get; set; }
     
     [Required]
-    [Column("firstyearentryto")]
+    [Column("firstYearEntryTo")]
     public decimal FirstYearEntryTo { get; set; }
     
     [Required]
-    [Column("avargepaes")]
+    [Column("avargePaes")]
     public decimal AvargePaes { get; set; }
     
     [Required]
-    [Column("avarageenrollment")]
+    [Column("avarageEnrollment")]
     public decimal AvarageEnrollment { get; set; }
     
     [Required]
-    [Column("vacanciesfirstsemester")]
+    [Column("vacanciesFirstSemester")]
     public int VacanciesFirstSemester { get; set; }
     
     [Required]
@@ -82,30 +82,30 @@ public class CareerCampusStats : GenericEntity
     public int Ranking { get; set; }
     
     [Required]
-    [Column("paeslanguaje")]
+    [Column("paesLanguaje")]
     public int PaesLanguaje { get; set; }
     
     [Required]
-    [Column("paesmaths")]
+    [Column("paesMaths")]
     public int PaesMaths { get; set; }
     
-    [Column("paesmaths2")]
+    [Column("paesMaths2")]
     public int? PaesMaths2 { get; set; }
     
-    [Column("paeshistory")]
+    [Column("paesHistory")]
     public int? PaesHistory { get; set; }
     
-    [Column("paessciences")]
+    [Column("paesSciences")]
     public int? PaesSciences { get; set; }
     
     [Column("others")]
     public int? Others { get; set; }
     
     [Required]
-    [Column("yearofdata")]
+    [Column("yearOfData")]
     public int YearOfData { get; set; }
     
-    [Column("careercampusid")]
+    [Column("careerCampusId")]
     public int CareerCampusId { get; set; }
     
     [ForeignKey("careerCampusId")]

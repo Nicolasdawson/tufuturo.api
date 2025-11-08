@@ -28,49 +28,8 @@ public class AssessmentDomain : IAssessmentDomain
 
         var questions = await _questionRepository.GetAllAsync();
 
-        //var scoreRiasec = GetRiasecScores(request.AnswersRiasec, questions);
-
-        // filtrar por region opcional
-
-        // filtrar por area
-
-        // filtrar por notas
-
-        // filtrar rango sueldo
-
-        // ratio felicidad? ndeah si lo tengo
-
-        // arancel opcional
-
-        // guardar request
-
-        // guardar respuesta al usuario
-
-        // mandar mensaje a la cola para mandar el correo
-
-        // ordenar las carreras por mayor sueldo e empleabilidad (ns cuantas devolver)
-
         return Result.Success();
     }
 
-    private Dictionary<string, int> GetRiasecScores(List<AnswerRequest> answers, List<Entities.Question> questions)
-    {
-        var scores = new Dictionary<string, int>();
 
-        foreach (var category in Enum.GetValues<RiasecCategory>())
-        {
-            scores[nameof(category)] = 0;
-        }
-
-        foreach (var answer in answers)
-        {
-            var question = questions.FirstOrDefault(q => q.Id == answer.QuestionId);
-            if (question != null)
-            {
-                scores[question.Category] += answer.Score;
-            }
-        }
-
-        return scores;
-    }
 }

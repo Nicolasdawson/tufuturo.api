@@ -7,19 +7,19 @@ public class CareerCampus : GenericEntity
     [Column("name")]
     public string Name { get; set; }
     
-    [Column("careerinstitutionid")]
+    [Column("careerInstitutionId")]
     public int CareerInstitutionId { get; set; }
     
     [ForeignKey("CareerInstitutionId")]
     public CareerInstitution CareerInstitution { get; set; }
     
-    [Column("scheduleid")]
+    [Column("scheduleId")]
     public int ScheduleId { get; set; }
     
     [ForeignKey("ScheduleId")]
     public Schedule Schedule { get; set; }
     
-    [Column("institutioncampusid")]
+    [Column("institutionCampusId")]
     public int InstitutionCampusId { get; set; }
     
     [ForeignKey("InstitutionCampusId")]

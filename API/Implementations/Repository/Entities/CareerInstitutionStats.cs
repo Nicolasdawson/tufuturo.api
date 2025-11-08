@@ -6,38 +6,38 @@ namespace API.Implementations.Repository.Entities;
 public class CareerInstitutionStats : GenericEntity
 {
     [Required]
-    [Column("studycontinuity")]
+    [Column("studyContinuity")]
     public decimal StudyContinuity { get; set; }
     
     [Required]
-    [Column("retentionfirstyear")]
+    [Column("retentionFirstYear")]
     public decimal RetentionFirstYear { get; set; }
     
     [Required]
-    [Column("realduration")]
+    [Column("realDuration")]
     public decimal RealDuration { get; set; }
     
     [Required]
-    [Column("employabilityfirstyear")]
+    [Column("employabilityFirstYear")]
     public decimal EmployabilityFirstYear { get; set; }
     
     [Required]
-    [Column("employabilitysecondyear")]
+    [Column("employabilitySecondYear")]
     public decimal EmployabilitySecondYear { get; set; }
     
     [Required]
-    [Column("avaragesalaryfrom")]
+    [Column("avarageSalaryFrom")]
     public int AvarageSalaryFrom { get; set; }
     
     [Required]
-    [Column("avaragesalaryto")]
+    [Column("avarageSalaryTo")]
     public int AvarageSalaryTo { get; set; }
     
     [Required]
-    [Column("yearofdata")]
+    [Column("yearOfData")]
     public int YearOfData { get; set; }
         
-    [Column("careerinstitutionid")]
+    [Column("careerInstitutionId")]
     public int CareerInstitutionId { get; set; }
     
     [ForeignKey("CareerInstitutionId")]

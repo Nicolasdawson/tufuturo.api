@@ -9,6 +9,6 @@ public class GenericEntity
     [Column("id")]
     public int Id { get; set; }
     
-    [Column("isdeleted")]
+    [Column("isDeleted")]
     public bool IsDeleted { get; set; }
 }

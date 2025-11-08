@@ -12,7 +12,7 @@ public class Institution : GenericEntity
     [Column("code")]
     public required string Code { get; set; }
     
-    [Column("institutiontypeid")]
+    [Column("institutionTypeId")]
     public int InstitutionTypeId { get; set; }
     
     [ForeignKey("InstitutionTypeId")]

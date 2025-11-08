@@ -7,13 +7,13 @@ public class InstitutionCampus : GenericEntity
     [Column("name")]
     public required string Name { get; set; }
     
-    [Column("regionid")]
+    [Column("regionId")]
     public int RegionId { get; set; }
     
     [ForeignKey("RegionId")]
     public Region Region { get; set; }
     
-    [Column("institutionid")]
+    [Column("institutionId")]
     public int InstitutionId { get; set; }
     
     [ForeignKey("InstitutionId")]
