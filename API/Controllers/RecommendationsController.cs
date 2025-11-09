@@ -19,7 +19,7 @@ public class RecommendationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<Result<List<RecommendedCareer>>> GetRecommendations([FromBody] AssessmentRequest request)
+    public async Task<Result<List<RecommendedCareer>>> GetRecommendations([FromBody] RecommendationRequest request)
     {
         return await _recommendationDomain.GetRecommendations(request);
     }

@@ -30,7 +30,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         .EnableSensitiveDataLogging()
         .EnableServiceProviderCaching(false));
 
-builder.Services.AddScoped<IAssessmentDomain, AssessmentDomain>();
 builder.Services.AddScoped<IStudentDomain, StudentDomain>();
 builder.Services.AddScoped<IQuestionsDomain, QuestionsDomain>();
 builder.Services.AddScoped<ICatalogsDomain, CatalogsDomain>();

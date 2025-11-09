@@ -2,10 +2,10 @@
 
 namespace API.Models;
 
-public class AssessmentRequest
+public class RecommendationRequest
 {
     [Required]
-    public int StudentId { get; set; }
+    public int RegionId { get; set; }
     
     [Required]
     public List<AnswerRequest> AnswersRiasec { get; set; }

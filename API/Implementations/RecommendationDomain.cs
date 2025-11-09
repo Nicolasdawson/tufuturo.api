@@ -23,7 +23,7 @@ namespace API.Implementations
             _catalogsDomain = catalogsDomain;
         }
 
-        public async Task<Result<List<RecommendedCareer>>> GetRecommendations(AssessmentRequest request)
+        public async Task<Result<List<RecommendedCareer>>> GetRecommendations(RecommendationRequest request)
         {
             var questions = await  _questionsDomain.GetAllQuestions();
             
@@ -50,6 +50,7 @@ namespace API.Implementations
             }
 
             var careerCampuses = await _careerCampusRepository.Get(x => !x.IsDeleted 
+                                                                        && x.InstitutionCampus.RegionId == request.RegionId
                                                                         && knowledgeAreaIds.Contains(x.CareerInstitution.Career.KnowledgeAreaId))
                 .Include(cc => cc.CareerInstitution)
                     .ThenInclude(ci => ci.Career) 

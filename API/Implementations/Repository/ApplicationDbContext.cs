@@ -22,8 +22,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<CareerInstitutionStats> CareerInstitutionStats { get; set; }
     public DbSet<InstitutionCampus> InstitutionCampuses { get; set; }
     public DbSet<InstitutionDetails> InstitutionDetails { get; set; }
-    public DbSet<Skill> Skills { get; set; }
-    public DbSet<SkillsAssessment> SkillsAssessments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -113,17 +111,5 @@ public class ApplicationDbContext : DbContext
             .HasOne(i => i.InstitutionType)
             .WithMany()
             .HasForeignKey(i => i.InstitutionTypeId);
-
-        modelBuilder.Entity<Skill>().ToTable("skill");
-        modelBuilder.Entity<SkillsAssessment>().ToTable("skillsassessment");
-
-        modelBuilder.Entity<SkillsAssessment>()
-            .HasOne(e => e.Student)
-            .WithMany()
-            .HasForeignKey(e => e.StudentId);
-
-        modelBuilder.Entity<SkillsAssessment>()
-            .HasMany(e => e.Skills)
-            .WithMany();
     }
 }
