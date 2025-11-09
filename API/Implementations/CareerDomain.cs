@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Models = API.Models;
 using Entities = API.Implementations.Repository.Entities;
 using Ardalis.Result;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace API.Implementations;
@@ -44,7 +45,7 @@ public class CareerDomain : ICareerDomain
             return careersCache!;
         }
         
-        var careers = _careerRepository.Get(x => !x.IsDeleted, "KnowledgeArea");
+        var careers = _careerRepository.Get(x => !x.IsDeleted);
         
         var count = careers.Count();
 
@@ -82,6 +83,7 @@ public class CareerDomain : ICareerDomain
         }
 
         var careersResult = careers
+            .Include(x => x.KnowledgeArea)
             .OrderByDescending(x => x.Id)
             .Skip(queryParams.Skip)
             .Take(queryParams.Take)

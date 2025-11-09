@@ -10,7 +10,7 @@ public interface IRepository<T> : IDisposable where T : GenericEntity
     Task<T> AddAsync(T entity);
     Task UpdateAsync(T entity);
     Task DeleteAsync(T entity);
-    IQueryable<T> Get(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
+    IQueryable<T> Get(Expression<Func<T, bool>>? filter = null);
     Task AddRangeAsync(IEnumerable<T> entities);
     Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
 }

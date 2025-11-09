@@ -26,17 +26,9 @@ public class Repository<T> : IRepository<T> where T : GenericEntity
         return await _context.Set<T>().AnyAsync(predicate);
     }
     
-    public IQueryable<T> Get(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+    public IQueryable<T> Get(Expression<Func<T, bool>>? filter = null)
     {
         IQueryable<T> query = _context.Set<T>();
-
-        if (includeProperties != null)
-        {
-            foreach (var includeProp in includeProperties.Split([','], StringSplitOptions.RemoveEmptyEntries))
-            {
-                query = query.Include(includeProp);
-            }
-        }
 
         if (filter != null)
         {
@@ -45,6 +37,26 @@ public class Repository<T> : IRepository<T> where T : GenericEntity
 
         return query;
     }
+    
+    // public IQueryable<T> Get(Expression<Func<T, bool>>? filter = null, string? includeProperties = null)
+    // {
+    //     IQueryable<T> query = _context.Set<T>();
+    //
+    //     if (includeProperties != null)
+    //     {
+    //         foreach (var includeProp in includeProperties.Split([','], StringSplitOptions.RemoveEmptyEntries))
+    //         {
+    //             query = query.Include(includeProp);
+    //         }
+    //     }
+    //
+    //     if (filter != null)
+    //     {
+    //         query = query.Where(filter);
+    //     }
+    //
+    //     return query;
+    // }
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
