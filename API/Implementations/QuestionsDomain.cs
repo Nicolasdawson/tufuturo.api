@@ -11,7 +11,7 @@ public class QuestionsDomain : IQuestionsDomain
 {
     private readonly IRepository<Entities.Question> _questionRepository;
     private readonly IMemoryCache _memoryCache;
-    private readonly string _cacheKey = "QuestionsEs";
+    private readonly string _cacheKey = "Questions";
     private readonly MemoryCacheEntryOptions _cacheOptions;
 
     public QuestionsDomain(IRepository<Entities.Question> questionRepository, IMemoryCache memoryCache)

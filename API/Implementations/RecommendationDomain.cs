@@ -3,6 +3,7 @@ using API.Abstractions;
 using API.Models;
 using Ardalis.Result;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Entities = API.Implementations.Repository.Entities;
 
 namespace API.Implementations
@@ -12,19 +13,35 @@ namespace API.Implementations
         private readonly IRepository<Entities.CareerCampus> _careerCampusRepository;
         private readonly IQuestionsDomain _questionsDomain;
         private readonly ICatalogsDomain _catalogsDomain;
+        private readonly IMemoryCache _memoryCache;
+        private readonly MemoryCacheEntryOptions _cacheOptions;
 
         public RecommendationDomain(
             IRepository<Entities.CareerCampus> careerCampusRepository,
             IQuestionsDomain questionsDomain,
-            ICatalogsDomain catalogsDomain)
+            ICatalogsDomain catalogsDomain,
+            IMemoryCache memoryCache)
         {
             _careerCampusRepository = careerCampusRepository;
             _questionsDomain = questionsDomain;
             _catalogsDomain = catalogsDomain;
+            
+            _memoryCache = memoryCache;
+        
+            _cacheOptions = new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromDays(1))
+                .SetPriority(CacheItemPriority.NeverRemove);
         }
 
         public async Task<Result<List<RecommendedCareer>>> GetRecommendations(RecommendationRequest request)
         {
+            var cacheKey = $"Recommendations_{request.RegionId}_{string.Join("_", request.AnswersRiasec.Select(a => $"{a.QuestionId}-{a.Score}"))}";
+            
+            if (_memoryCache.TryGetValue(cacheKey, out Result<List<RecommendedCareer>> resultsCached))
+            {
+                return resultsCached!;
+            }
+            
             var questions = await  _questionsDomain.GetAllQuestions();
             
             var riasecScores = GetRiasecScores(request.AnswersRiasec, questions);
@@ -73,7 +90,11 @@ namespace API.Implementations
                 .Take(10)
                 .ToList();
 
-            return Result<List<RecommendedCareer>>.Success(recommendations);
+            var result = Result<List<RecommendedCareer>>.Success(recommendations);
+            
+            _memoryCache.Set(cacheKey, result, _cacheOptions);
+
+            return result;
         }
 
         private Dictionary<string, int> GetRiasecScores(List<AnswerRequest> answers, List<Question> questions)
